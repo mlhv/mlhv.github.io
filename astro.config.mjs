@@ -1,5 +1,46 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig, fontProviders } from "astro/config";
 
 // https://astro.build/config
-export default defineConfig({});
+export default defineConfig({
+  fonts: [
+    {
+      provider: fontProviders.local(),
+      name: "Silkscreen",
+      cssVariable: "--font-silkscreen",
+      options: {
+        variants: [
+          {
+            src: ["./src/assets/fonts/Silkscreen-Regular.ttf"],
+            weight: "normal",
+            style: "normal",
+          },
+          {
+            src: ["./src/assets/fonts/Silkscreen-Bold.ttf"],
+            weight: "bold",
+            style: "normal",
+          },
+        ],
+      },
+    },
+    {
+      provider: fontProviders.local(),
+      name: "Atkinson Hyperlegible",
+      cssVariable: "--font-atkinson-hyperlegible",
+      options: {
+        variants: [
+          {
+            src: ["./src/assets/fonts/AtkinsonHyperlegible-Regular.ttf"],
+            weight: "normal",
+            style: "normal",
+          },
+          {
+            src: ["./src/assets/fonts/AtkinsonHyperlegible-Bold.ttf"],
+            weight: "bold",
+            style: "normal",
+          },
+        ],
+      },
+    },
+  ],
+});
