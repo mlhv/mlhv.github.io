@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { collectTags, filterPostsByTag, sortPostsNewestFirst } from './blog';
+import { collectTags, initialTag, filterPostsByTag, sortPostsNewestFirst } from './blog';
 
 const posts = [
 	{ id: 'a', tags: ['go', 'infra'] },
@@ -44,5 +44,20 @@ describe('sortPostsNewestFirst', () => {
 		];
 		expect(sortPostsNewestFirst(input).map((p) => p.id)).toEqual(['new', 'old']);
 		expect(input[0].id).toBe('old');
+	});
+});
+
+describe('initialTag', () => {
+	it('returns a tag that some post has', () => {
+		expect(initialTag('go', posts)).toBe('go');
+	});
+
+	it('ignores unknown tags', () => {
+		expect(initialTag('rust', posts)).toBeNull();
+	});
+
+	it('returns null for a missing or empty param', () => {
+		expect(initialTag(null, posts)).toBeNull();
+		expect(initialTag('', posts)).toBeNull();
 	});
 });

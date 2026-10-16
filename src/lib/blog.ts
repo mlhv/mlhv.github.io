@@ -8,3 +8,7 @@ export const collectTags = (posts: readonly { tags: readonly string[] }[]): stri
 
 export const sortPostsNewestFirst = <T extends { data: { date: Date } }>(posts: readonly T[]): T[] =>
 	[...posts].sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+/** The `?tag=` value to preselect: only a tag some post carries, otherwise null so the page never opens empty. */
+export const initialTag = (param: string | null, posts: readonly { tags: readonly string[] }[]): string | null =>
+	param && posts.some((post) => post.tags.includes(param)) ? param : null;

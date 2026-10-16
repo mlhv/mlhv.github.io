@@ -61,7 +61,7 @@ const formatDate = new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeZ
 </Layout>
 
 <script>
-	import { filterPostsByTag } from "../../lib/blog";
+	import { filterPostsByTag, initialTag } from "../../lib/blog";
 
 	const items = [...document.querySelectorAll<HTMLLIElement>("ol.posts > li")].map((el) => ({
 		el,
@@ -85,8 +85,8 @@ const formatDate = new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeZ
 	for (const button of buttons) button.addEventListener("click", () => apply(button.dataset.tag || null));
 
 	// Shareable ?tag= links; an unknown tag is ignored so the page never opens empty.
-	const initial = new URL(location.href).searchParams.get("tag");
-	if (initial && items.some((item) => item.tags.includes(initial))) apply(initial);
+	const initial = initialTag(new URL(location.href).searchParams.get("tag"), items);
+	if (initial) apply(initial);
 </script>
 
 <style>
