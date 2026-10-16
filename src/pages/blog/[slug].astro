@@ -1,0 +1,39 @@
+---
+import type { InferGetStaticPropsType } from "astro";
+import { render } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+import { getVisiblePosts } from "../../lib/content";
+
+export async function getStaticPaths() {
+	const posts = await getVisiblePosts();
+	return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+const { post } = Astro.props as Props;
+const { Content } = await render(post);
+const formatDate = new Intl.DateTimeFormat("en-US", { dateStyle: "long", timeZone: "UTC" });
+---
+
+<Layout title={post.data.title} description={post.data.description}>
+	<p><a href="/blog/">← All posts</a></p>
+	<article class="post">
+		<h1>{post.data.title}</h1>
+		<p class="muted">
+			<time datetime={post.data.date.toISOString()}>{formatDate.format(post.data.date)}</time>
+		</p>
+		<Content />
+	</article>
+</Layout>
+
+<style>
+	.post {
+		max-width: 70ch;
+	}
+
+	h1 {
+		margin-bottom: 0.25rem;
+		font-size: clamp(1.4rem, 4vw, 2rem);
+	}
+</style>

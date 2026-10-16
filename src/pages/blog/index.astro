@@ -1,0 +1,131 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { collectTags } from "../../lib/blog";
+import { getVisiblePosts } from "../../lib/content";
+
+const posts = await getVisiblePosts();
+const tags = collectTags(posts.map((post) => post.data));
+const formatDate = new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeZone: "UTC" });
+---
+
+<Layout title="Blog" description="Engineering writing by Minh Le.">
+	<h1 class="page-title">Blog</h1>
+
+	{
+		posts.length === 0 ? (
+			<p class="empty">
+				Posts coming soon. In the meantime, have a look at my <a href="/projects/">projects</a>.
+			</p>
+		) : (
+			<>
+				{tags.length > 0 && (
+					<div class="filters" role="group" aria-label="Filter posts by tag">
+						<button type="button" data-tag="" aria-pressed="true">
+							All
+						</button>
+						{tags.map((tag) => (
+							<button type="button" data-tag={tag} aria-pressed="false">
+								{tag}
+							</button>
+						))}
+					</div>
+				)}
+
+				<ol class="posts">
+					{posts.map((post) => (
+						<li data-tags={JSON.stringify(post.data.tags)}>
+							<article>
+								<h2>
+									<a href={`/blog/${post.id}/`}>{post.data.title}</a>
+								</h2>
+								<p class="muted">
+									<time datetime={post.data.date.toISOString()}>{formatDate.format(post.data.date)}</time>
+									{post.data.draft && " · DRAFT"}
+								</p>
+								<p>{post.data.description}</p>
+								<ul class="tag-list" aria-label="Tags">
+									{post.data.tags.map((tag) => (
+										<li class="tag">{tag}</li>
+									))}
+								</ul>
+							</article>
+						</li>
+					))}
+				</ol>
+				<p class="no-match" hidden>
+					No posts with that tag.
+				</p>
+			</>
+		)
+	}
+</Layout>
+
+<script>
+	import { filterPostsByTag } from "../../lib/blog";
+
+	const items = [...document.querySelectorAll<HTMLLIElement>("ol.posts > li")].map((el) => ({
+		el,
+		tags: JSON.parse(el.dataset.tags ?? "[]") as string[],
+	}));
+	const buttons = [...document.querySelectorAll<HTMLButtonElement>(".filters button")];
+	const noMatch = document.querySelector<HTMLElement>(".no-match");
+
+	const apply = (tag: string | null) => {
+		const visible = new Set(filterPostsByTag(items, tag));
+		for (const item of items) item.el.hidden = !visible.has(item);
+		for (const button of buttons) button.setAttribute("aria-pressed", String((button.dataset.tag || null) === tag));
+		if (noMatch) noMatch.hidden = visible.size > 0;
+
+		const url = new URL(location.href);
+		if (tag) url.searchParams.set("tag", tag);
+		else url.searchParams.delete("tag");
+		history.replaceState(null, "", url);
+	};
+
+	for (const button of buttons) button.addEventListener("click", () => apply(button.dataset.tag || null));
+
+	// Shareable ?tag= links; an unknown tag is ignored so the page never opens empty.
+	const initial = new URL(location.href).searchParams.get("tag");
+	if (initial && items.some((item) => item.tags.includes(initial))) apply(initial);
+</script>
+
+<style>
+	.filters {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.filters button {
+		padding: 0.3rem 0.8rem;
+		font: inherit;
+		font-size: 0.9rem;
+		color: var(--color-foreground);
+		background: var(--color-surface);
+		border: 2px solid var(--color-foreground);
+		cursor: pointer;
+	}
+
+	.filters button[aria-pressed="true"] {
+		background: var(--color-accent);
+		color: var(--color-on-accent);
+	}
+
+	.posts {
+		display: grid;
+		gap: 1.75rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	h2 {
+		margin: 0;
+		font-size: 1.2rem;
+	}
+
+	article p {
+		margin: 0.25rem 0 0.5rem;
+	}
+</style>
