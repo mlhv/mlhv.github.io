@@ -1,0 +1,263 @@
+%-------------------------
+% Resume in Latex
+% Author : Jake Gutierrez
+% Based off of: https://github.com/sb2nov/resume
+% License : MIT
+%------------------------
+
+\documentclass[letterpaper,11pt]{article}
+
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage{marvosym}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\usepackage{tabularx}
+\input{glyphtounicode}
+
+
+%----------FONT OPTIONS----------
+% sans-serif
+% \usepackage[sfdefault]{FiraSans}
+% \usepackage[sfdefault]{roboto}
+% \usepackage[sfdefault]{noto-sans}
+% \usepackage[default]{sourcesanspro}
+\usepackage{lmodern}
+
+% serif
+% \usepackage{CormorantGaramond}
+% \usepackage{XCharter}
+
+
+\pagestyle{fancy}
+\fancyhf{} % clear all header and footer fields
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Adjust margins
+\addtolength{\oddsidemargin}{-0.5in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1in}
+\addtolength{\topmargin}{-.5in}
+\addtolength{\textheight}{1.0in}
+
+\urlstyle{same}
+
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+% Sections formatting
+\titleformat{\section}{
+  \vspace{-4pt}\scshape\raggedright\large
+}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
+
+% Ensure that generate pdf is machine readable/ATS parsable
+\pdfgentounicode=1
+
+%-------------------------
+% Custom commands
+\newcommand{\resumeItem}[1]{
+  \item\small{
+    {#1 \vspace{-2pt}}
+  }
+}
+
+\newcommand{\resumeSubheading}[4]{
+  \vspace{-2pt}\item
+    \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{#1} & #2 \\
+      \textit{\small#3} & \textit{\small #4} \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeSubSubheading}[2]{
+    \item
+    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+      \textit{\small#1} & \textit{\small #2} \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeProjectHeading}[2]{
+    \item
+    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+      \small#1 & #2 \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeSubItem}[1]{\resumeItem{#1}\vspace{-4pt}}
+
+\renewcommand\labelitemii{$\vcenter{\hbox{\tiny$\bullet$}}$}
+
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0.15in, label={}]}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
+\newcommand{\resumeItemListStart}{\begin{itemize}}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
+
+%-------------------------------------------
+%%%%%%  RESUME STARTS HERE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+%----------HEADING----------
+% \begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}r}
+%   \textbf{\href{http://sourabhbajaj.com/}{\Large Sourabh Bajaj}} & Email : \href{mailto:sourabh@sourabhbajaj.com}{sourabh@sourabhbajaj.com}\\
+%   \href{http://sourabhbajaj.com/}{http://www.sourabhbajaj.com} & Mobile : +1-123-456-7890 \\
+% \end{tabular*}
+
+\begin{center}
+    \textbf{\Huge \scshape Minh Le} \\ \vspace{1pt}
+    \small \href{mailto:levuhoangminh1@gmail.com}{levuhoangminh1@gmail.com} $|$ 
+    \href{https://www.linkedin.com/in/hoangminhvule}{linkedin.com/in/hoangminhvule} $|$
+    \href{https://github.com/mlhv}{github.com/mlhv}
+\end{center}
+
+
+%-----------EDUCATION-----------
+\section{Education}
+\resumeSubHeadingListStart
+  \resumeSubheading
+    {Drexel University}{Philadelphia, PA}
+    {B.S in Software Engineering, Minor in Finance $|$ GPA: 3.79/4.0}{Expected May 2028}
+    \resumeItemListStart
+        \resumeItem{Coursework: Object-Oriented Programming (Java), Data Structures \& Algorithms, Software Architectures, Database Systems, Artificial Intelligence, Statistics \& Probability}
+        \resumeItem{Affiliations: Hack4Impact (Developer), ASME (Technical Coordinator), Drexel AI, Stanford's CiP}
+      \resumeItemListEnd
+\resumeSubHeadingListEnd
+
+%
+%-----------PROGRAMMING SKILLS-----------
+\section{Technical Skills}
+ \begin{itemize}[leftmargin=0.15in, label={}]
+    \small{\item{
+     \textbf{Languages}{: Go (Golang), Python, C/C++, Java, JavaScript/TypeScript, YAML, SQL, Bash, HTML/CSS} \\
+\textbf{Frameworks}{: Spring Boot, Next.js, Angular, JUnit, Hono} \\
+\textbf{Libraries \& Tools}{: Claude Code, Git, Jira, React, Node.js, Pandas, Cloudflare, Kafka, Azure DevOps} \\
+\textbf{Databases \& Infrastructure}{: PostgreSQL, MySQL, MongoDB, Docker, Kubernetes, Linux, AWS, Azure, Helm}
+    }}
+ \end{itemize}
+
+
+%-----------EXPERIENCE-----------
+\section{Experience}
+  \resumeSubHeadingListStart
+
+      \resumeSubheading
+          {VisioneerIT}{Mar 2026 -- Sept 2026}
+          {Software Engineer Intern}{Baltimore, MD}
+          \resumeItemListStart
+          \resumeItem{Built \textbf{Next.js/React} components and tier-gated APIs across multiple government data sources, giving users filtered access to \textbf{100k+} government agencies and bids.}
+              \resumeItem{Engineered a 5-stage \textbf{RAG} hybrid search pipeline using BGE, BM25 and CE reranking across \textbf{87,000+} indexed government policy documents, achieving sub-600ms query latency and \textbf{85.9\%} average relevance score.}
+              \resumeItem{Developed automated ETL pipeline to scrape active government solicitations across \textbf{all 50} states, configuring schema mappings and deduplication logic for \textbf{MySQL} tables.}
+          \resumeItemListEnd
+
+    \resumeSubheading
+      {Bentley Systems}{Mar 2025 -- Sept 2025}
+      {Software Engineer Intern}{Philadelphia, PA}
+      \resumeItemListStart
+          \resumeItem{Modernized legacy \textbf{RPC} protocols to \textbf{REST} endpoints with session affinity using cookies, reducing response times from \textbf{$\sim$2s} to \textbf{0.2s} for returning users across a Go-based Kubernetes backend.}
+          \resumeItem{Deployed an automated \textbf{vertical scaling} pipeline across 8+ regions using an open-source recommendation engine, generating right-sizing reports that improved utilization by \textbf{35\%} and saved \textbf{$\sim$\$2,000} annually per node.}
+        \resumeItem{Engineered \textbf{Grafana} dashboards and alert rules for \textbf{20+ microservices}, enabling proactive failure detection to protect \textbf{service level agreements} (SLAs) and prevent costly downtime.}
+        
+      \resumeItemListEnd
+
+    \resumeSubheading
+      {Drexel University}{Jun 2024 -- Sept 2024}
+      {Research Assistant}{Philadelphia, PA}
+      \resumeItemListStart
+        \resumeItem{Developed a specialized full-stack \textbf{NextJS} web platform for analyzing stigma in drug-related content, integrating \textbf{Hono}, \textbf{Docker}, and \textbf{MongoDB} to accelerate data processing workflows for researchers.}
+        \resumeItem{Built and deployed custom LLM workflows integrating \textbf{OpenAI GPT-4} for advanced NLP content analysis, preserving users’ stylistic profiles with over \textbf{90\%} classification accuracy.}
+        % \resumeItem{Optimized API routes with Bun and Hono, securing the application with \textbf{JWT middleware} and authentication.}
+      \resumeItemListEnd
+      
+% -----------Multiple Positions Heading-----------
+%    \resumeSubSubheading
+%     {Software Engineer I}{Oct 2014 - Sep 2016}
+%     \resumeItemListStart
+%        \resumeItem{Apache Beam}
+%          {Apache Beam is a unified model for defining both batch and streaming data-parallel processing pipelines}
+%     \resumeItemListEnd
+%    \resumeSubHeadingListEnd
+%-------------------------------------------
+
+
+
+  \resumeSubHeadingListEnd
+
+
+%-----------PROJECTS-----------
+\section{Projects \& Open Source}
+    \resumeSubHeadingListStart
+           \resumeProjectHeading
+    {\textbf{Pkmn-Quant - Algorithmic Trading Backtester} $|$
+  \emph{Python, Polars, C++, scikit-learn, DuckDB}}{}
+    \resumeItemListStart
+      \resumeItem{Built an event-driven backtester over a \textbf{3M-row}
+  Parquet price warehouse with \textbf{T+1} fills, \textbf{12.75\%} fees,
+  and tiered liquidity caps, enabling all \textbf{5} strategies to generate
+  live daily trade signals with \textbf{zero} code changes.}
+       \resumeItem{Trained a gradient-boosted model to rank assets by
+  predicted forward returns with \textbf{no look-ahead bias}, posting a
+  \textbf{+6.0\%} out-of-sample return that beat \textbf{3 of 4} hand-built
+  strategies under \textbf{11-fold} walk-forward analysis.}
+      \resumeItem{Profiled and rewrote the engine's per-day pricing hot
+  path, cutting backtest runtime \textbf{1.9x} (3.8s to 2.0s) with zero
+  behavior drift, verified byte-identical by golden regression tests in a
+  \textbf{267-test} CI suite.}
+    \resumeItemListEnd
+    \resumeProjectHeading
+      {\textbf{OpenTelemetry (Open Source Contributor)} $|$ \emph{Go, C, eBPF, OTLP, Docker}}{}
+      \resumeItemListStart
+        \resumeItem{Introduced a new \textbf{OTLP Logs} export pipeline for an \textbf{eBPF}-based \textbf{Go/C} auto-instrumentation agent, extracting kernel-level request timings to correlate natively with parent traces via shared \textbf{span IDs}.}
+        \resumeItem{Implemented an opt-in configuration toggle that consolidates \textbf{3} verbose sibling spans into \textbf{1} unified log record, reducing trace export volume by \textbf{66\%} while maintaining \textbf{100\%} backward compatibility.}
+      \resumeItemListEnd
+    \resumeProjectHeading
+      {\textbf{Harbor (Open Source Contributor)} $|$ \emph{Go, PostgreSQL, Keycloak, OIDC, Angular}}{}
+      \resumeItemListStart
+        \resumeItem{Developed an OIDC group-based authentication filter for a CNCF-graduated Go backend, integrating Keycloak JWT parsing to secure system access across API, Docker CLI, and Angular frontend interfaces.}
+        \resumeItem{Added a multi-layer configuration pipeline from a \textbf{PostgreSQL} registry, achieving 100\% backward compatibility while validating authorization states across 8 edge cases to guarantee zero security regressions.}
+      \resumeItemListEnd
+        \resumeProjectHeading
+          {\textbf{SightLink - CodeFest 2026} $|$ \emph{Python, MediaPipe, MobileNetV2, TensorFlow, OpenCV}}{}
+          \resumeItemListStart
+            \resumeItem{Developed a real-time ASL fingerspelling translator using a confidence hybrid classifier, routing 30fps webcam frames through a fast landmark \textbf{MLP} (97.5\% accuracy) with \textbf{CNN} fallback, achieving $\sim$99.9\% accuracy.}
+            \resumeItem{Trained both models on 87,000 Kaggle ASL images across 29 classes, implementing scale-invariant landmark normalization (wrist-centered, bounding-box-scaled) that boosted MLP accuracy 15\% above projected baseline.}
+          \resumeItemListEnd
+          \resumeProjectHeading
+          {\textbf{Dragon Shell - Custom Shell and TCP Server} $|$ \emph{C, POSIX Sockets, pthreads, Linux}}{}
+          \resumeItemListStart
+            \resumeItem{Built a UNIX shell in \textbf{C}, that runs piped commands and I/O redirection using fork, execvp, and dup2, cleaning up child processes with waitpid.}
+            \resumeItem{Extended shell into a multi-threaded \textbf{TCP} server in C, spawning a thread per client connection, allowing multiple users to run remote commands at once.}
+          \resumeItemListEnd
+        \resumeProjectHeading
+          {\textbf{SocialGym - ML Chat Platform} $|$ \emph{React, Spring Boot, Python, Kafka, PostgreSQL}}{}
+          \resumeItemListStart
+            \resumeItem{Implemented an event-driven ML pipeline via \textbf{Kafka}, allowing a Python microservice to perform asynchronous Hugging Face sentiment analysis, maintaining \textbf{100\%} main-thread availability during heavy NLP workloads.}
+            \resumeItem{Engineered a low-latency, full-duplex chat interface using \textbf{WebSockets} and React, dynamically updating the UI with real-time AI feedback without HTTP polling lag, ensuring \textbf{sub-100ms} message delivery.}
+          \resumeItemListEnd
+      \resumeProjectHeading
+          {\textbf{Stylify - Virtual Wardrobe App} $|$ \emph{React+Vite, Hono, PostgreSQL, AWS Lambda, S3, CloudFront}}{}
+          \resumeItemListStart
+            \resumeItem{Built a responsive virtual wardrobe system using \textbf{React+Vite and PostgreSQL}, featuring complete CRUD functionality to manage \textbf{500+} garment entries and generate recommendations using multi-param filtering.}
+            \resumeItem{Migrated deployment from EC2 to a serverless architecture using \textbf{AWS Lambda, ECR, CloudFront+S3}, cutting infrastructure costs from \textbf{\$12/mo} to \textbf{\$0.15/mo} while maintaining \textbf{99.9\%} uptime.}
+          \resumeItemListEnd
+           \resumeProjectHeading
+          {\textbf{DU ProfessorView - Rate My Professor Extension} $|$ \emph{TypeScript, Chrome MV3, WXT, Cloudflare Workers}}{}
+          \resumeItemListStart
+            \resumeItem{Built a chrome extension adding Rate My Professors ratings to Drexel's course catalog, used by \textbf{300} students.}
+            \resumeItem{Designed a lookup that checks a local browser cache, then a \textbf{Cloudflare Workers} + KV shared cache.}
+          \resumeItemListEnd
+          
+    \resumeSubHeadingListEnd
+
+
+
+%-------------------------------------------
+\end{document}
