@@ -1,8 +1,74 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { resume } from "../lib/resume-data";
 ---
 
-<Layout title="Work Experience">
-  <h1 class="page-title">Work Experience</h1>
-  <p>Work in progress...</p>
+<Layout title="Work Experience" description="Minh Le's software engineering internships and research roles.">
+	<h1 class="page-title">Work Experience</h1>
+	<p class="links"><a href="/resume/">View résumé</a> · <a href="/resume.pdf">Download PDF</a></p>
+
+	<ol class="roles">
+		{
+			resume.experience.map((job) => (
+				<li class="role">
+					<header>
+						<h2>{job.company}</h2>
+						<p class="meta">
+							<span>{job.role}</span>
+							<span>{job.location}</span>
+							<span>
+								{job.startDate} – {job.endDate || "Present"}
+							</span>
+						</p>
+					</header>
+					<ul>
+						{job.highlights.map((h) => (
+							<li>{h}</li>
+						))}
+					</ul>
+				</li>
+			))
+		}
+	</ol>
 </Layout>
+
+<style>
+	/* Data-dense area: plain, high-contrast, no Persona accents. */
+	.roles {
+		display: grid;
+		gap: 1.25rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.role {
+		max-width: none;
+		padding: 1.25rem 1.5rem;
+		background: var(--color-surface);
+		border: 2px solid var(--color-border);
+		border-left: 6px solid var(--color-accent);
+	}
+
+	h2 {
+		margin: 0;
+		font-size: 1.2rem;
+	}
+
+	.meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25rem 1.25rem;
+		margin: 0.25rem 0 0.75rem;
+		color: var(--color-muted);
+	}
+
+	.role ul {
+		margin: 0;
+		padding-left: 1.25rem;
+	}
+
+	.role li + li {
+		margin-top: 0.4rem;
+	}
+</style>

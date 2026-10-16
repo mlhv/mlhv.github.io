@@ -1,0 +1,150 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { resume } from "../lib/resume-data";
+import { displayUrl } from "../lib/resume";
+
+const { name, contact, education, skills, experience } = resume;
+---
+
+<Layout title="Résumé" description={`${name}'s résumé: education, skills, and experience.`}>
+	<article class="resume">
+		<header>
+			<h1>{name}</h1>
+			<p class="contact">
+				<a href={`mailto:${contact.email}`}>{contact.email}</a> ·
+				<a href={contact.linkedin}>{displayUrl(contact.linkedin)}</a> ·
+				<a href={contact.github}>{displayUrl(contact.github)}</a>
+			</p>
+			<p><a class="download" href="/resume.pdf" download>Download PDF</a></p>
+		</header>
+
+		<section>
+			<h2>Education</h2>
+			{
+				education.map((e) => (
+					<div class="entry">
+						<div class="entry-head">
+							<strong>{e.school}</strong>
+							<span>{e.location}</span>
+						</div>
+						<div class="entry-head muted">
+							<em>{e.degree}</em>
+							<span>{e.date}</span>
+						</div>
+						<ul>
+							{e.details.map((d) => (
+								<li>{d}</li>
+							))}
+						</ul>
+					</div>
+				))
+			}
+		</section>
+
+		<section>
+			<h2>Skills</h2>
+			<dl class="skills">
+				{
+					skills.map((s) => (
+						<div>
+							<dt>{s.label}</dt>
+							<dd>{s.items.join(", ")}</dd>
+						</div>
+					))
+				}
+			</dl>
+		</section>
+
+		<section>
+			<h2>Experience</h2>
+			{
+				experience.map((job) => (
+					<div class="entry">
+						<div class="entry-head">
+							<strong>{job.company}</strong>
+							<span>
+								{job.startDate} – {job.endDate || "Present"}
+							</span>
+						</div>
+						<div class="entry-head muted">
+							<em>{job.role}</em>
+							<span>{job.location}</span>
+						</div>
+						<ul>
+							{job.highlights.map((h) => (
+								<li>{h}</li>
+							))}
+						</ul>
+					</div>
+				))
+			}
+		</section>
+
+		<p>Projects and open-source work: <a href="/projects/">see Projects</a>.</p>
+	</article>
+</Layout>
+
+<style>
+	/* Plain single column: theme colors and heading font only; no Window chrome. */
+	.resume {
+		max-width: 46rem;
+	}
+
+	h1 {
+		margin: 0 0 0.25rem;
+		font-size: 2rem;
+	}
+
+	h2 {
+		margin: 2rem 0 0.75rem;
+		padding-bottom: 0.25rem;
+		font-size: 1.05rem;
+		border-bottom: 2px solid var(--color-accent);
+	}
+
+	.contact {
+		margin: 0;
+	}
+
+	.download {
+		font-weight: bold;
+	}
+
+	.entry + .entry {
+		margin-top: 1.25rem;
+	}
+
+	.entry-head {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		gap: 0 1rem;
+	}
+
+	.entry ul {
+		margin: 0.4rem 0 0;
+		padding-left: 1.25rem;
+	}
+
+	.skills {
+		margin: 0;
+	}
+
+	.skills div + div {
+		margin-top: 0.35rem;
+	}
+
+	dt {
+		display: inline;
+		font-weight: bold;
+	}
+
+	dt::after {
+		content: ": ";
+	}
+
+	dd {
+		display: inline;
+		margin: 0;
+	}
+</style>
