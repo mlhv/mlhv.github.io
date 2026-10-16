@@ -1,0 +1,75 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+import Window from "../../components/Window.astro";
+import ProjectLogo from "../../components/ProjectLogo.astro";
+import { sortProjects } from "../../lib/projects";
+
+const projects = sortProjects(await getCollection("projects"));
+---
+
+<Layout title="Projects" description="Projects and open-source contributions by Minh Le.">
+	<h1 class="page-title">Projects</h1>
+
+	<ul class="grid">
+		{
+			projects.map((project) => (
+				<li>
+					<Window title={project.data.title} href={`/projects/${project.id}/`}>
+						<div class="screen">
+							<ProjectLogo title={project.data.title} logo={project.data.logo} size={56} />
+							{project.data.featured && <span class="featured">★ Featured</span>}
+						</div>
+						<p class="description">{project.data.description}</p>
+						<ul class="tag-list" aria-label="Tech stack">
+							{project.data.techStack.map((tech) => (
+								<li class="tag">{tech}</li>
+							))}
+						</ul>
+					</Window>
+				</li>
+			))
+		}
+	</ul>
+</Layout>
+
+<style>
+	.grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+		gap: 1.75rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.grid > li {
+		max-width: none;
+	}
+
+	.screen {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.75rem;
+		margin-bottom: 0.75rem;
+		background: var(--color-background);
+		border: 2px solid var(--color-border);
+	}
+
+	.featured {
+		font-family: var(--font-heading);
+		font-size: 0.7rem;
+		text-transform: uppercase;
+		color: var(--color-accent);
+	}
+
+	.description {
+		display: -webkit-box;
+		margin: 0 0 0.75rem;
+		overflow: hidden;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 3;
+		line-clamp: 3;
+	}
+</style>

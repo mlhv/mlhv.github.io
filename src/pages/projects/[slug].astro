@@ -1,0 +1,67 @@
+---
+import type { InferGetStaticPropsType } from "astro";
+import { getCollection, render } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+import ProjectLogo from "../../components/ProjectLogo.astro";
+
+export async function getStaticPaths() {
+	const projects = await getCollection("projects");
+	return projects.map((project) => ({ params: { slug: project.id }, props: { project } }));
+}
+
+type Props = InferGetStaticPropsType<typeof getStaticPaths>;
+
+const { project } = Astro.props as Props;
+const { title, description, techStack, repoUrl, liveUrl, logo } = project.data;
+const { Content } = await render(project);
+---
+
+<Layout title={title} description={description}>
+	<p><a href="/projects/">← All projects</a></p>
+	<header class="head">
+		<ProjectLogo title={title} logo={logo} size={80} />
+		<div>
+			<h1>{title}</h1>
+			<ul class="tag-list" aria-label="Tech stack">
+				{techStack.map((tech) => <li class="tag">{tech}</li>)}
+			</ul>
+		</div>
+	</header>
+
+	{
+		(repoUrl || liveUrl) && (
+			<p class="links">
+				{repoUrl && <a href={repoUrl}>Source code ↗</a>}
+				{repoUrl && liveUrl && " · "}
+				{liveUrl && <a href={liveUrl}>Live demo ↗</a>}
+			</p>
+		)
+	}
+
+	<div class="body">
+		<Content />
+	</div>
+</Layout>
+
+<style>
+	.head {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 1.25rem;
+		margin: 1rem 0 1.5rem;
+	}
+
+	h1 {
+		margin: 0 0 0.5rem;
+		font-size: clamp(1.4rem, 4vw, 2rem);
+	}
+
+	.links {
+		font-weight: bold;
+	}
+
+	.body {
+		max-width: 70ch;
+	}
+</style>

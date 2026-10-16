@@ -1,0 +1,42 @@
+---
+import type { ImageMetadata } from "astro";
+import { Image } from "astro:assets";
+import { monogram } from "../lib/projects";
+
+interface Props {
+	title: string;
+	logo?: ImageMetadata;
+	size?: number;
+}
+
+const { title, logo, size = 64 } = Astro.props;
+---
+
+{
+	logo ? (
+		<Image src={logo} alt="" width={size} height={size} class="logo" style={`--size: ${size}px`} />
+	) : (
+		<span class="logo monogram" aria-hidden="true" style={`--size: ${size}px`}>
+			{monogram(title)}
+		</span>
+	)
+}
+
+<style>
+	.logo {
+		display: inline-grid;
+		place-items: center;
+		width: var(--size);
+		height: var(--size);
+		object-fit: contain;
+		flex-shrink: 0;
+	}
+
+	.monogram {
+		font-family: var(--font-heading);
+		font-size: calc(var(--size) * 0.36);
+		color: var(--color-on-accent);
+		background: var(--color-accent);
+		border: 3px solid var(--color-foreground);
+	}
+</style>
