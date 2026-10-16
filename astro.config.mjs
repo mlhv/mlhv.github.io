@@ -3,6 +3,7 @@ import { defineConfig, fontProviders } from "astro/config";
 
 // https://astro.build/config
 export default defineConfig({
+  site: "https://mlhv.github.io",
   fonts: [
     {
       provider: fontProviders.local(),
