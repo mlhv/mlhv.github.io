@@ -63,32 +63,38 @@ const formatDate = new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeZ
 <script>
 	import { filterPostsByTag, initialTag } from "../../lib/blog";
 
-	const items = [...document.querySelectorAll<HTMLLIElement>("ol.posts > li")].map((el) => ({
-		el,
-		tags: JSON.parse(el.dataset.tags ?? "[]") as string[],
-	}));
-	const buttons = [...document.querySelectorAll<HTMLButtonElement>(".filters button")];
-	const noMatch = document.querySelector<HTMLElement>(".no-match");
-	// The "All" button carries data-tag="", which means no filter.
-	const tagOf = (button: HTMLButtonElement) => button.dataset.tag || null;
+	// Module scripts run once per session under ClientRouter, so set up on every page load and bail off this page.
+	document.addEventListener("astro:page-load", () => {
+		if (!document.querySelector(".filters")) return;
 
-	const apply = (tag: string | null) => {
-		const visible = new Set(filterPostsByTag(items, tag));
-		for (const item of items) item.el.hidden = !visible.has(item);
-		for (const button of buttons) button.setAttribute("aria-pressed", String(tagOf(button) === tag));
-		if (noMatch) noMatch.hidden = visible.size > 0;
+		const items = [...document.querySelectorAll<HTMLLIElement>("ol.posts > li")].map((el) => ({
+			el,
+			tags: JSON.parse(el.dataset.tags ?? "[]") as string[],
+		}));
+		const buttons = [...document.querySelectorAll<HTMLButtonElement>(".filters button")];
+		const noMatch = document.querySelector<HTMLElement>(".no-match");
+		// The "All" button carries data-tag="", which means no filter.
+		const tagOf = (button: HTMLButtonElement) => button.dataset.tag || null;
 
-		const url = new URL(location.href);
-		if (tag) url.searchParams.set("tag", tag);
-		else url.searchParams.delete("tag");
-		history.replaceState(null, "", url);
-	};
+		const apply = (tag: string | null) => {
+			const visible = new Set(filterPostsByTag(items, tag));
+			for (const item of items) item.el.hidden = !visible.has(item);
+			for (const button of buttons) button.setAttribute("aria-pressed", String(tagOf(button) === tag));
+			if (noMatch) noMatch.hidden = visible.size > 0;
 
-	for (const button of buttons) button.addEventListener("click", () => apply(tagOf(button)));
+			const url = new URL(location.href);
+			if (tag) url.searchParams.set("tag", tag);
+			else url.searchParams.delete("tag");
+			// Keep ClientRouter's own history state so back/forward still work.
+			history.replaceState(history.state, "", url);
+		};
 
-	// Shareable ?tag= links; an unknown tag is ignored so the page never opens empty.
-	const initial = initialTag(new URL(location.href).searchParams.get("tag"), items);
-	if (initial) apply(initial);
+		for (const button of buttons) button.addEventListener("click", () => apply(tagOf(button)));
+
+		// Shareable ?tag= links; an unknown tag is ignored so the page never opens empty.
+		const initial = initialTag(new URL(location.href).searchParams.get("tag"), items);
+		if (initial) apply(initial);
+	});
 </script>
 
 <style>

@@ -20,22 +20,24 @@
 	const systemDark = window.matchMedia("(prefers-color-scheme: dark)");
 	const currentTheme = () => resolveTheme(readStored(), systemDark.matches);
 
-	const button = document.querySelector<HTMLButtonElement>("[data-theme-toggle]");
-	const render = () => button?.setAttribute("aria-pressed", String(currentTheme() === "dark"));
+	// The button is re-rendered on every ClientRouter navigation, so look it up fresh each time.
+	const getButton = () => document.querySelector<HTMLButtonElement>("[data-theme-toggle]");
+	const render = () => getButton()?.setAttribute("aria-pressed", String(currentTheme() === "dark"));
 
-	button?.addEventListener("click", () => {
-		const next = currentTheme() === "dark" ? "light" : "dark";
-		document.documentElement.dataset.theme = next;
-		try {
-			localStorage.setItem(STORAGE_KEY, next);
-		} catch {}
+	document.addEventListener("astro:page-load", () => {
+		getButton()?.addEventListener("click", () => {
+			const next = currentTheme() === "dark" ? "light" : "dark";
+			document.documentElement.dataset.theme = next;
+			try {
+				localStorage.setItem(STORAGE_KEY, next);
+			} catch {}
+			render();
+		});
 		render();
 	});
 
 	// With no stored choice the page follows the OS theme, so keep the button state in step with it.
 	systemDark.addEventListener("change", render);
-
-	render();
 </script>
 
 <style>

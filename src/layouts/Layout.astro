@@ -1,6 +1,7 @@
 ---
 import "../styles/theme.css";
 import { Font } from "astro:assets";
+import { ClientRouter } from "astro:transitions";
 import Nav from "../components/Nav.astro";
 
 interface Props {
@@ -30,11 +31,17 @@ const pageTitle = title === "Home" ? "Minh Le" : `${title} · Minh Le`;
 		<script is:inline>
 			// Runs before first paint so a stored theme choice never flashes the wrong palette.
 			// With no stored choice, theme.css follows prefers-color-scheme on its own.
-			try {
-				const stored = localStorage.getItem("theme");
-				if (stored === "light" || stored === "dark") document.documentElement.dataset.theme = stored;
-			} catch {}
+			// ClientRouter swaps in a fresh <html> on navigation, so the theme is re-applied to the incoming document too.
+			const applyStoredTheme = (doc) => {
+				try {
+					const stored = localStorage.getItem("theme");
+					if (stored === "light" || stored === "dark") doc.documentElement.dataset.theme = stored;
+				} catch {}
+			};
+			applyStoredTheme(document);
+			document.addEventListener("astro:before-swap", (event) => applyStoredTheme(event.newDocument));
 		</script>
+		<ClientRouter />
 	</head>
 	<body>
 		<a class="skip-link" href="#main">Skip to content</a>
