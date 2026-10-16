@@ -18,7 +18,7 @@ const links = [
 	<dl class="contact">
 		{
 			links.map((l) => (
-				<div>
+				<div class="row">
 					<dt>{l.label}</dt>
 					<dd>
 						<a href={l.href} rel={l.label === "Email" ? undefined : "me"}>
@@ -28,7 +28,7 @@ const links = [
 				</div>
 			))
 		}
-		<div>
+		<div class="row">
 			<dt>Résumé</dt>
 			<dd><a href="/resume/">Web</a> · <a href="/resume.pdf">PDF</a></dd>
 		</div>
@@ -42,7 +42,7 @@ const links = [
 		margin: 1.5rem 0 0;
 	}
 
-	.contact div {
+	.contact .row {
 		display: grid;
 		grid-template-columns: 7rem 1fr;
 		gap: 1rem;
@@ -61,7 +61,7 @@ const links = [
 	}
 
 	@media (max-width: 480px) {
-		.contact div {
+		.contact .row {
 			grid-template-columns: 1fr;
 			gap: 0;
 		}
