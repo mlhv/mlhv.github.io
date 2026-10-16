@@ -9,11 +9,13 @@ interface Props {
 const { title, href, headingLevel = 2 } = Astro.props;
 const Tag = href ? "a" : "section";
 const Heading = `h${headingLevel}` as "h2" | "h3";
+// Names the whole-card link by its title alone, not title + description + tags. Unique per instance.
+const titleId = href ? `window-title-${crypto.randomUUID()}` : undefined;
 ---
 
-<Tag class="window" href={href}>
+<Tag class="window" href={href} aria-labelledby={titleId}>
 	<div class="titlebar">
-		<Heading class="title">{title}</Heading>
+		<Heading class="title" id={titleId}>{title}</Heading>
 		<span class="controls" aria-hidden="true"><span></span><span></span><span></span></span>
 	</div>
 	<div class="body">
