@@ -6,10 +6,12 @@ import { monogram } from "../lib/projects";
 interface Props {
 	title: string;
 	logo?: ImageMetadata;
+	/** Badge text when there is no logo; defaults to monogram(title). */
+	badge?: string;
 	size?: number;
 }
 
-const { title, logo, size = 64 } = Astro.props;
+const { title, logo, badge, size = 64 } = Astro.props;
 ---
 
 {
@@ -17,7 +19,7 @@ const { title, logo, size = 64 } = Astro.props;
 		<Image src={logo} alt="" width={size} height={size} class="logo" style={`--size: ${size}px`} />
 	) : (
 		<span class="logo monogram" aria-hidden="true" style={`--size: ${size}px`}>
-			{monogram(title)}
+			{badge ?? monogram(title)}
 		</span>
 	)
 }

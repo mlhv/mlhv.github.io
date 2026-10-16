@@ -31,4 +31,8 @@ describe('monogram', () => {
 		expect(monogram('OpenTelemetry (Open Source Contributor)')).toBe('OP');
 		expect(monogram('Stylify - Virtual Wardrobe App')).toBe('ST');
 	});
+
+	it('ignores a subtitle after an em dash', () => {
+		expect(monogram('Stylify — Virtual Wardrobe App')).toBe('ST');
+	});
 });

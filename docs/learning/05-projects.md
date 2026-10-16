@@ -3,7 +3,7 @@
 ## What we built
 
 - A `projects` content collection (`src/content.config.ts`) with a Zod schema, fed by eight Markdown files seeded from the résumé into `src/content/projects/`.
-- Pure helpers in `src/lib/projects.ts`: `sortProjects` (featured, then `order`, then title) and `monogram` (two-letter fallback badge), covered by `src/lib/projects.test.ts`.
+- Pure helpers in `src/lib/projects.ts`: `sortProjects` (featured, then `order`, then title) and `monogram` (two-letter fallback badge; a project can override it with a `monogram:` frontmatter field, e.g. `"DU"` for DU ProfessorView), covered by `src/lib/projects.test.ts`.
 - A reusable `Window` component (retro title bar, default slot, optional `href`) and a `ProjectLogo` component (real image or monogram).
 - A responsive grid at `/projects/` and one detail page per project at `/projects/<slug>/`.
 - Build-time validation: a project missing `description` or `techStack` fails the build.

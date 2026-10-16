@@ -11,15 +11,15 @@ export async function getStaticPaths() {
 
 type Props = InferGetStaticPropsType<typeof getStaticPaths>;
 
-const { project } = Astro.props as Props;
-const { title, description, techStack, repoUrl, liveUrl, logo } = project.data;
+const { project } = Astro.props;
+const { title, description, techStack, repoUrl, liveUrl, logo, monogram } = project.data;
 const { Content } = await render(project);
 ---
 
 <Layout title={title} description={description}>
 	<p><a href="/projects/">← All projects</a></p>
 	<header class="head">
-		<ProjectLogo title={title} logo={logo} size={80} />
+		<ProjectLogo title={title} logo={logo} badge={monogram} size={80} />
 		<div>
 			<h1>{title}</h1>
 			<ul class="tag-list" aria-label="Tech stack">

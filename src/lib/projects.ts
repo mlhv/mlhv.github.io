@@ -15,7 +15,7 @@ export const sortProjects = <T extends Sortable>(projects: readonly T[]): T[] =>
 
 /** Two-letter fallback badge for projects without a logo: "Pkmn-Quant - …" → "PQ". */
 export const monogram = (title: string): string => {
-	const name = title.split(/ [-–(]/)[0];
+	const name = title.split(/ [-–—(]/)[0];
 	const words = name.split(/[\s-]+/).filter(Boolean);
 	return (words.length > 1 ? words[0][0] + words[1][0] : name.slice(0, 2)).toUpperCase();
 };

@@ -13,6 +13,8 @@ const projects = defineCollection({
 			liveUrl: z.url().optional(),
 			/** Path relative to the .md file, e.g. ./logos/pkmn-quant.png */
 			logo: image().optional(),
+			/** Overrides the auto-generated two-letter badge shown when there is no logo, e.g. "DU". */
+			monogram: z.string().min(1).max(3).optional(),
 			featured: z.boolean().default(false),
 			order: z.number().int().optional(),
 			date: z.coerce.date().optional(),

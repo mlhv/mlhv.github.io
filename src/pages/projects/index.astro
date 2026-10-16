@@ -17,7 +17,7 @@ const projects = sortProjects(await getCollection("projects"));
 				<li>
 					<Window title={project.data.title} href={`/projects/${project.id}/`}>
 						<div class="screen">
-							<ProjectLogo title={project.data.title} logo={project.data.logo} size={56} />
+							<ProjectLogo title={project.data.title} logo={project.data.logo} badge={project.data.monogram} size={56} />
 							{project.data.featured && <span class="featured">★ Featured</span>}
 						</div>
 						<p class="description">{project.data.description}</p>
