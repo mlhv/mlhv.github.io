@@ -1,26 +1,46 @@
 ---
 import "../styles/theme.css";
+import { Font } from "astro:assets";
 import Nav from "../components/Nav.astro";
 
 interface Props {
 	title: string;
+	description?: string;
 }
 
-const { title } = Astro.props;
+const {
+	title,
+	description = "Minh Le: software engineering projects, experience, and writing.",
+} = Astro.props;
+const pageTitle = title === "Home" ? "Minh Le" : `${title} · Minh Le`;
 ---
 
 <!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content={description} />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
-		<title>{title}</title>
+		<Font cssVariable="--font-silkscreen" preload />
+		<Font cssVariable="--font-atkinson-hyperlegible" preload />
+		<title>{pageTitle}</title>
+		<script is:inline>
+			// Runs before first paint so a stored theme choice never flashes the wrong palette.
+			// With no stored choice, theme.css follows prefers-color-scheme on its own.
+			try {
+				const stored = localStorage.getItem("theme");
+				if (stored === "light" || stored === "dark") document.documentElement.dataset.theme = stored;
+			} catch {}
+		</script>
 	</head>
 	<body>
+		<a class="skip-link" href="#main">Skip to content</a>
 		<Nav />
-		<slot />
+		<main id="main">
+			<slot />
+		</main>
 	</body>
 </html>

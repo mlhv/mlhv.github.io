@@ -1,9 +1,86 @@
-<nav>
-    <ul>
-        <li><a href="/">Home</a></li>
-        <li><a href="/projects">Projects</a></li>
-        <li><a href="/work">Work Experience</a></li>
-        <li><a href="/blog">Blog</a></li>
-        <li><a href="/contact">Contact</a></li>
-    </ul>
-</nav>
+---
+import ThemeToggle from "./ThemeToggle.astro";
+
+const links = [
+	{ href: "/", label: "Home" },
+	{ href: "/projects/", label: "Projects" },
+	{ href: "/work/", label: "Work Experience" },
+	{ href: "/blog/", label: "Blog" },
+	{ href: "/contact/", label: "Contact" },
+];
+
+// Normalise "/projects" and "/projects/" to the same thing.
+const path = Astro.url.pathname.replace(/\/+$/, "") || "/";
+const isCurrent = (href: string) => {
+	const target = href.replace(/\/+$/, "") || "/";
+	return target === "/" ? path === "/" : path === target || path.startsWith(`${target}/`);
+};
+---
+
+<header class="site-header">
+	<nav aria-label="Main">
+		<ul>
+			{
+				links.map(({ href, label }) => (
+					<li>
+						<a href={href} aria-current={isCurrent(href) ? "page" : undefined}>
+							{label}
+						</a>
+					</li>
+				))
+			}
+		</ul>
+	</nav>
+	<ThemeToggle />
+</header>
+
+<style>
+	.site-header {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+		padding: 0.75rem clamp(1rem, 4vw, 2rem);
+		background: var(--color-surface);
+		border-bottom: 3px solid var(--color-foreground);
+	}
+
+	ul {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	a {
+		display: inline-block;
+		padding: 0.4rem 1rem;
+		font-family: var(--font-heading);
+		font-size: 0.8rem;
+		text-transform: uppercase;
+		text-decoration: none;
+		color: var(--color-foreground);
+		/* Persona-style diagonal cut; chrome only. */
+		clip-path: polygon(8% 0, 100% 0, 92% 100%, 0 100%);
+	}
+
+	a:hover {
+		background: var(--color-border);
+	}
+
+	a[aria-current="page"] {
+		background: var(--color-accent);
+		color: var(--color-on-accent);
+	}
+
+	/* clip-path would clip an outline, so focus is shown with fill + underline instead. */
+	a:focus-visible {
+		outline: none;
+		background: var(--color-accent);
+		color: var(--color-on-accent);
+		text-decoration: underline;
+	}
+</style>
