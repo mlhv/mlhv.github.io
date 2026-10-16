@@ -186,7 +186,10 @@ export const parseResume = (rawTex: string): Resume => {
 			for (const b of readBlocks(body)) {
 				// Experience macro order differs: {company}{dates}{role}{location}
 				const [company, dates, role, location] = b.args;
-				const [startDate, endDate = ''] = dates.split('--').map(cleanLatex);
+				const [startDate, endDate = ''] = dates.split(/--|–|\\textendash(?:\{\})?/).map(cleanLatex);
+				if (!startDate) {
+					throw new Error(`Experience entry "${cleanLatex(company)}" has no start date in "${dates}"; has the résumé template changed?`);
+				}
 				resume.experience.push({
 					company: cleanLatex(company),
 					role: cleanLatex(role),
@@ -213,10 +216,16 @@ export const parseResume = (rawTex: string): Resume => {
 	if (resume.experience.length === 0) {
 		throw new Error('No entries found in an "Experience" section; has the résumé template changed?');
 	}
+	if (resume.education.length === 0) {
+		throw new Error('No entries found in an "Education" section; has the résumé template changed?');
+	}
+	if (resume.skills.length === 0) {
+		throw new Error('No entries found in a "Skills" section; has the résumé template changed?');
+	}
 	return resume;
 };
 
-const PHONE = /\(?\d{3}\)?[\s.-]*\d{3}[\s.-]*\d{4}/;
+const PHONE = /(?:\+?1[\s.-]*)?\(?\d{3}\)?[\s.-]*\d{3}[\s.-]*\d{4}/;
 
 /** True if the text contains anything shaped like a US phone number. */
 export const containsPhone = (s: string): boolean => PHONE.test(s);

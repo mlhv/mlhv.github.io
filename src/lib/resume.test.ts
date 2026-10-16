@@ -106,15 +106,40 @@ describe('parseResume (template drift)', () => {
 		expect(() => parseResume(noExperience)).toThrow(/Experience/);
 	});
 
+	it('throws when the Education section is missing', () => {
+		const noEducation = fixture.replace('\\section{Education}', '\\section{Schooling}');
+		expect(() => parseResume(noEducation)).toThrow(/Education/);
+	});
+
+	it('throws when the Skills section is missing', () => {
+		const noSkills = fixture.replace('\\section{Technical Skills}', '\\section{Technical Abilities}');
+		expect(() => parseResume(noSkills)).toThrow(/Skills/);
+	});
+
+	it('throws when experience dates have no start date', () => {
+		const tex = fixture.replace('\\section{Experience}', '\\section{Experience}\n\\resumeSubheading{Acme}{}{Dev}{Remote}');
+		expect(() => parseResume(tex)).toThrow(/start date/);
+	});
+
 	it('throws when the heading block is missing', () => {
 		expect(() => parseResume('\\section{Experience}')).toThrow(/heading/);
+	});
+});
+
+describe('experience dates', () => {
+	it('splits on \\textendash as well as --', () => {
+		const tex = fixture.replace(
+			'\\section{Experience}',
+			'\\section{Experience}\n\\resumeSubheading{Acme}{Jan 2020 \\textendash{} Mar 2021}{Dev}{Remote}',
+		);
+		expect(parseResume(tex).experience[0]).toMatchObject({ company: 'Acme', startDate: 'Jan 2020', endDate: 'Mar 2021' });
 	});
 });
 
 describe('phone handling for the public PDF', () => {
 	const heading = (phone: string) => `\\small ${phone} $|$ \\href{mailto:a@b.c}{a@b.c}`;
 
-	it.each(['(555) 867-5309', '555-867-5309', '555.867.5309', '555 867 5309'])('strips %s', (phone) => {
+	it.each(['(555) 867-5309', '+1 (555) 867-5309', '+1-555-867-5309', '555-867-5309', '555.867.5309', '555 867 5309'])('strips %s', (phone) => {
 		const out = stripPhone(heading(phone));
 		expect(out).toBe('\\small \\href{mailto:a@b.c}{a@b.c}');
 		expect(containsPhone(out)).toBe(false);
