@@ -74,6 +74,10 @@ if (seedProjects) {
 	const created = projects.flatMap((project, i) => {
 		const file = join(dir, `${project.slug}.md`);
 		if (existsSync(file)) return [];
+		if (project.techStack.length === 0) {
+			console.warn(`⚠ skipped seeding ${project.slug}: no tech stack in résumé heading`);
+			return [];
+		}
 		writeFileSync(file, projectSeedMarkdown(project, i + 1));
 		return [project.slug];
 	});
