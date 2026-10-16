@@ -29,13 +29,6 @@ const tex = readFileSync(texPath, 'utf8');
 // parseResume throws on template drift before anything is written.
 const { projects, ...site } = parseResume(tex);
 
-mkdirSync(join(root, 'src/data'), { recursive: true });
-writeFileSync(
-	join(root, 'src/data/resume.json'),
-	`${JSON.stringify({ _generated: `npm run sync-resume from ${texName}. Do not edit by hand.`, ...site }, null, '\t')}\n`,
-);
-console.log(`✓ src/data/resume.json: ${site.experience.length} roles, ${site.skills.length} skill groups`);
-
 const hasTectonic = (() => {
 	try {
 		execFileSync('tectonic', ['--version'], { stdio: 'ignore' });
@@ -68,19 +61,36 @@ if (containsPhone(stripComments(pdfTex))) {
 	}
 }
 
+// A failed PDF build stops here, so resume.json and resume.pdf never describe different résumés.
+if (process.exitCode === 1) {
+	console.error('✗ src/data/resume.json left unchanged because the PDF step failed.');
+	process.exit(1);
+}
+
+mkdirSync(join(root, 'src/data'), { recursive: true });
+writeFileSync(
+	join(root, 'src/data/resume.json'),
+	`${JSON.stringify({ _generated: `npm run sync-resume from ${texName}. Do not edit by hand.`, ...site }, null, '\t')}\n`,
+);
+console.log(`✓ src/data/resume.json: ${site.experience.length} roles, ${site.skills.length} skill groups`);
+
 if (seedProjects) {
 	const dir = join(root, 'src/content/projects');
 	mkdirSync(dir, { recursive: true });
-	const created = projects.flatMap((project, i) => {
-		const file = join(dir, `${project.slug}.md`);
-		if (existsSync(file)) return [];
-		if (project.techStack.length === 0) {
+	// order follows résumé position among projects that have a tech stack, so a skipped project leaves no gap.
+	const created = projects
+		.filter((project) => project.techStack.length > 0)
+		.flatMap((project, i) => {
+			const file = join(dir, `${project.slug}.md`);
+			if (existsSync(file)) return [];
+			writeFileSync(file, projectSeedMarkdown(project, i + 1));
+			return [project.slug];
+		});
+	for (const project of projects) {
+		if (project.techStack.length === 0 && !existsSync(join(dir, `${project.slug}.md`))) {
 			console.warn(`⚠ skipped seeding ${project.slug}: no tech stack in résumé heading`);
-			return [];
 		}
-		writeFileSync(file, projectSeedMarkdown(project, i + 1));
-		return [project.slug];
-	});
+	}
 	console.log(created.length ? `✓ seeded projects: ${created.join(', ')}` : '✓ projects: every résumé project already has a file');
 } else {
 	console.log(`• projects untouched (${projects.length} in résumé; pass --seed-projects to create missing files)`);

@@ -230,9 +230,11 @@ const PHONE = /(?:\+?1[\s.-]*)?\(?\d{3}\)?[\s.-]*\d{3}[\s.-]*\d{4}/;
 /** True if the text contains anything shaped like a US phone number. */
 export const containsPhone = (s: string): boolean => PHONE.test(s);
 
-/** Remove the phone number (and its trailing `$|$` separator) from the .tex heading. */
+/** Remove the phone number and the `$|$` separator next to it from the .tex heading (it may come first or last). */
 export const stripPhone = (tex: string): string =>
-	tex.replace(new RegExp(`${PHONE.source}\\s*\\$\\|\\$\\s*`, 'g'), '');
+	tex
+		.replace(new RegExp(`${PHONE.source}\\s*\\$\\|\\$\\s*`, 'g'), '')
+		.replace(new RegExp(`\\s*\\$\\|\\$\\s*${PHONE.source}`, 'g'), '');
 
 // Tectonic is XeTeX-based; these template lines exist only in pdfTeX, so guard them.
 const PDFTEX_ONLY = ['\\input{glyphtounicode}', '\\pdfgentounicode=1'];
@@ -240,7 +242,7 @@ const PDFTEX_ONLY = ['\\input{glyphtounicode}', '\\pdfgentounicode=1'];
 /** The .tex to compile for the public PDF: phone removed, pdfTeX-only lines guarded for tectonic. */
 export const publicPdfSource = (tex: string): string =>
 	PDFTEX_ONLY.reduce(
-		(src, line) => src.replace(line, `\\ifdefined\\pdfgentounicode ${line}\\fi`),
+		(src, line) => src.replaceAll(line, `\\ifdefined\\pdfgentounicode ${line}\\fi`),
 		stripPhone(tex),
 	);
 

@@ -94,9 +94,12 @@ describe('parseResume (real resume fixture)', () => {
 		expect(JSON.stringify(resume)).not.toContain('JWT middleware');
 	});
 
-	it('never outputs a phone number', () => {
+	it('never outputs a phone number, and still reads the contact links around it', () => {
 		const withPhone = fixture.replace('\\small \\href{mailto', '\\small (555) 123-4567 $|$ \\href{mailto');
-		expect(containsPhone(JSON.stringify(parseResume(withPhone)))).toBe(false);
+		expect(withPhone).not.toBe(fixture); // the injection point exists, so this test exercises a phone in the heading
+		const parsed = parseResume(withPhone);
+		expect(parsed.contact).toEqual(resume.contact);
+		expect(containsPhone(JSON.stringify(parsed))).toBe(false);
 	});
 });
 
@@ -145,6 +148,12 @@ describe('phone handling for the public PDF', () => {
 		expect(containsPhone(out)).toBe(false);
 	});
 
+	it('strips a phone number that comes last in the heading, with its leading separator', () => {
+		const out = stripPhone('\\small \\href{mailto:a@b.c}{a@b.c} $|$ (555) 867-5309');
+		expect(out).toBe('\\small \\href{mailto:a@b.c}{a@b.c}');
+		expect(containsPhone(out)).toBe(false);
+	});
+
 	it('does not flag resume numbers that are not phone numbers', () => {
 		// The raw fixture has a commented-out template sample (+1-123-456-7890); only rendered text matters.
 		expect(containsPhone(stripComments(fixture))).toBe(false);
@@ -155,6 +164,11 @@ describe('phone handling for the public PDF', () => {
 		expect(containsPhone(src)).toBe(false);
 		expect(src).toContain('\\ifdefined\\pdfgentounicode \\input{glyphtounicode}\\fi');
 		expect(src).toContain('\\ifdefined\\pdfgentounicode \\pdfgentounicode=1\\fi');
+	});
+
+	it('publicPdfSource guards every occurrence of a pdfTeX-only line', () => {
+		const src = publicPdfSource('\\pdfgentounicode=1\n\\pdfgentounicode=1');
+		expect(src).toBe('\\ifdefined\\pdfgentounicode \\pdfgentounicode=1\\fi\n\\ifdefined\\pdfgentounicode \\pdfgentounicode=1\\fi');
 	});
 });
 
