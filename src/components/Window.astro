@@ -4,9 +4,11 @@ interface Props {
 	/** When set, the whole window is a link. Don't put other links inside it. */
 	href?: string;
 	headingLevel?: 2 | 3;
+	/** Title bar colour: the green accent (default) or the blue secondary. */
+	tone?: "accent" | "secondary";
 }
 
-const { title, href, headingLevel = 2 } = Astro.props;
+const { title, href, headingLevel = 2, tone = "accent" } = Astro.props;
 const Tag = href ? "a" : "section";
 const Heading = `h${headingLevel}` as "h2" | "h3";
 // Names the whole-card link by its title alone, not title + description + tags.
@@ -14,7 +16,7 @@ const Heading = `h${headingLevel}` as "h2" | "h3";
 const titleId = href ? `window-title-${href.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "") || "home"}` : undefined;
 ---
 
-<Tag class="window" href={href} aria-labelledby={titleId}>
+<Tag class:list={["window", `tone-${tone}`]} href={href} aria-labelledby={titleId}>
 	<div class="titlebar">
 		<Heading class="title" id={titleId}>{title}</Heading>
 		<span class="controls" aria-hidden="true"><span></span><span></span><span></span></span>
@@ -31,8 +33,10 @@ const titleId = href ? `window-title-${href.replace(/[^a-z0-9]+/gi, "-").replace
 		height: 100%;
 		color: var(--color-foreground);
 		text-decoration: none;
+		overflow: hidden;
 		background: var(--color-surface);
 		border: 3px solid var(--color-foreground);
+		border-radius: var(--radius);
 		box-shadow: 6px 6px 0 var(--color-foreground);
 		transition:
 			transform 120ms ease,
@@ -55,17 +59,20 @@ const titleId = href ? `window-title-${href.replace(/[^a-z0-9]+/gi, "-").replace
 		align-items: center;
 		justify-content: space-between;
 		gap: 0.75rem;
-		padding: 0.35rem 0.6rem;
+		padding: 0.4rem 0.75rem;
 		background: var(--color-accent);
 		color: var(--color-on-accent);
 		border-bottom: 3px solid var(--color-foreground);
 	}
 
+	.tone-secondary .titlebar {
+		background: var(--color-secondary);
+		color: var(--color-on-secondary);
+	}
+
 	.title {
 		margin: 0;
-		font-size: 0.9rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
+		font-size: 1.05rem;
 	}
 
 	.controls {
@@ -77,8 +84,9 @@ const titleId = href ? `window-title-${href.replace(/[^a-z0-9]+/gi, "-").replace
 	.controls span {
 		width: 10px;
 		height: 10px;
-		background: var(--color-on-accent);
+		background: currentColor;
 		border: 2px solid var(--color-foreground);
+		border-radius: 50%;
 	}
 
 	.body {

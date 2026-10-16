@@ -57,18 +57,17 @@ const isCurrent = (href: string) => {
 
 	a {
 		display: inline-block;
-		padding: 0.4rem 1rem;
+		padding: 0.35rem 1rem;
 		font-family: var(--font-heading);
-		font-size: 0.8rem;
-		text-transform: uppercase;
+		font-size: 1rem;
+		font-weight: 500;
 		text-decoration: none;
 		color: var(--color-foreground);
-		/* Persona-style diagonal cut; chrome only. */
-		clip-path: polygon(8% 0, 100% 0, 92% 100%, 0 100%);
+		border-radius: 999px;
 	}
 
 	a:hover {
-		background: var(--color-border);
+		background: var(--color-desk);
 	}
 
 	a[aria-current="page"] {
@@ -76,11 +75,5 @@ const isCurrent = (href: string) => {
 		color: var(--color-on-accent);
 	}
 
-	/* clip-path would clip an outline, so focus is shown with fill + underline instead. */
-	a:focus-visible {
-		outline: none;
-		background: var(--color-accent);
-		color: var(--color-on-accent);
-		text-decoration: underline;
-	}
+
 </style>

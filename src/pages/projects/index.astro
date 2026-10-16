@@ -55,12 +55,13 @@ const projects = sortProjects(await getCollection("projects"));
 		margin-bottom: 0.75rem;
 		background: var(--color-background);
 		border: 2px solid var(--color-border);
+		border-radius: calc(var(--radius) * 0.75);
 	}
 
 	.featured {
 		font-family: var(--font-heading);
-		font-size: 0.7rem;
-		text-transform: uppercase;
+		font-size: 0.85rem;
+		font-weight: 600;
 		color: var(--color-accent);
 	}
 

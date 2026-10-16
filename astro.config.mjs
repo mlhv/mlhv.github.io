@@ -7,18 +7,14 @@ export default defineConfig({
   fonts: [
     {
       provider: fontProviders.local(),
-      name: "Silkscreen",
-      cssVariable: "--font-silkscreen",
+      name: "Fredoka",
+      cssVariable: "--font-fredoka",
       options: {
         variants: [
           {
-            src: ["./src/assets/fonts/Silkscreen-Regular.ttf"],
-            weight: "normal",
-            style: "normal",
-          },
-          {
-            src: ["./src/assets/fonts/Silkscreen-Bold.ttf"],
-            weight: "bold",
+            // Variable font: one file covers every weight in the range.
+            src: ["./src/assets/fonts/Fredoka-Variable.ttf"],
+            weight: "300 700",
             style: "normal",
           },
         ],

@@ -37,8 +37,10 @@ const { title, logo, badge, size = 64 } = Astro.props;
 	.monogram {
 		font-family: var(--font-heading);
 		font-size: calc(var(--size) * 0.36);
+		font-weight: 600;
 		color: var(--color-on-accent);
 		background: var(--color-accent);
 		border: 3px solid var(--color-foreground);
+		border-radius: var(--radius);
 	}
 </style>

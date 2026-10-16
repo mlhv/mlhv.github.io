@@ -33,4 +33,4 @@ _Avoid_: Card, tile, icon
 
 ## Theme
 
-Hybrid: a pixel-art/retro-desktop metaphor structures the homepage and interactions (calm, restrained, recruiter-readable), with Persona-5-inspired bold accents (diagonal cuts, dynamic typography) applied only to chrome/headers/buttons — never to body text or data-dense areas like Work Experience. Signature palette is boba/cream-inspired, not Persona's literal red/black/white.
+Cute and game-like but recruiter-readable: a retro-desktop metaphor structures the homepage, with playful accents (rounded "sticker" page titles with a slight tilt, pill-shaped nav and buttons, chunky offset shadows) applied only to chrome/headers/buttons — never to body text or data-dense areas like Work Experience. Palette is "Pallet Town": grass green accent and sky-blue secondary on a pale meadow background, with white panels so content stands off the page; dark mode is a forest-night version of the same. Headings use Fredoka (rounded); body text uses Atkinson Hyperlegible. Every text/background pairing meets WCAG AA.

@@ -31,7 +31,7 @@ const [latestRole] = resume.experience;
 			</Window>
 		</div>
 		<div class="slot slot-work">
-			<Window title="Work Experience" href="/work/">
+			<Window title="Work Experience" href="/work/" tone="secondary">
 				{
 					latestRole && (
 						<p>
@@ -50,7 +50,7 @@ const [latestRole] = resume.experience;
 			</Window>
 		</div>
 		<div class="slot slot-contact">
-			<Window title="Contact" href="/contact/">
+			<Window title="Contact" href="/contact/" tone="secondary">
 				<p class="email">{resume.contact.email}</p>
 				<p class="muted">LinkedIn · GitHub · Résumé</p>
 			</Window>
@@ -73,10 +73,11 @@ const [latestRole] = resume.experience;
 		grid-template-columns: 1fr;
 		gap: 1.5rem;
 		padding: 1.25rem;
-		background-color: var(--color-background);
+		background-color: var(--color-desk);
 		background-image: radial-gradient(var(--color-border) 1.5px, transparent 1.5px);
 		background-size: 16px 16px;
 		border: 3px solid var(--color-foreground);
+		border-radius: calc(var(--radius) * 1.5);
 	}
 
 	.slot p {
@@ -90,8 +91,9 @@ const [latestRole] = resume.experience;
 
 	.open {
 		font-family: var(--font-heading);
-		font-size: 0.8rem;
-		color: var(--color-accent);
+		font-size: 0.95rem;
+		font-weight: 600;
+		color: var(--color-secondary);
 	}
 
 	.email {
