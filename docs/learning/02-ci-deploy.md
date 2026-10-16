@@ -23,7 +23,7 @@ A workflow is one YAML file under `.github/workflows/`. It contains jobs, and ea
 `npm ci` deletes `node_modules`, then installs exactly what `package-lock.json` records, and fails if the lockfile and `package.json` disagree. `npm install` may update the lockfile. CI uses `npm ci` so a build always uses the dependency versions you committed. The `cache: npm` option in `setup-node` caches the download step, keyed on the lockfile.
 
 ### Pages artifact and `deploy-pages` (OIDC)
-The flow has two steps. `upload-pages-artifact` packs `dist/` into a tarball and stores it on the run. `deploy-pages` takes that artifact and publishes it to the `github-pages` environment. The permissions are the reason it works:
+The flow has two steps. `upload-pages-artifact` packs `dist/` into a tarball and stores it on the run. `deploy-pages` takes that artifact and publishes it to the `github-pages` environment. The permissions are the reason it works. The workflow grants only `contents: read`; the two publishing permissions are added on the `deploy` job alone, so the build job (which also runs for pull requests) can never publish:
 - `pages: write` lets the job create a deployment on the Pages site.
 - `id-token: write` lets the job request an OIDC token. GitHub checks the token, so the deploy step needs no stored password or deploy key. The identity is the workflow itself.
 - `contents: read` is the minimum for checking out the code.

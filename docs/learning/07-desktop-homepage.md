@@ -21,7 +21,7 @@ The base `.desktop` rule is a single column with no grid placement. Only `@media
 ### Why placement lives on `.slot` wrappers
 Astro scoped styles only apply to elements in this component's template. `Window` is a child component, so its root element is not reachable from `index.astro`'s `<style>` block through the child's own scope. Putting the grid placement on a plain `<div class="slot ...">` wrapper keeps it in this file's scope, and `Window` stays unaware of where it sits on the page.
 
-### Deriving every word from data
+### Deriving everything but the tagline from data
 The tagline is the only hand-written copy on the page. Counts, the latest role and the email all come from the same sources the other pages use, so when `npm run sync-resume` changes `resume.json`, the homepage changes with it.
 
 ## Why it's done this way
