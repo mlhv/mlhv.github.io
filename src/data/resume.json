@@ -1,0 +1,112 @@
+{
+	"_generated": "npm run sync-resume from sources/master-resume.tex. Do not edit by hand.",
+	"name": "Minh Le",
+	"contact": {
+		"email": "levuhoangminh1@gmail.com",
+		"linkedin": "https://www.linkedin.com/in/hoangminhvule",
+		"github": "https://github.com/mlhv"
+	},
+	"education": [
+		{
+			"school": "Drexel University",
+			"location": "Philadelphia, PA",
+			"degree": "B.S in Software Engineering, Minor in Finance | GPA: 3.79/4.0",
+			"date": "Expected May 2028",
+			"details": [
+				"Coursework: Object-Oriented Programming (Java), Data Structures & Algorithms, Software Architectures, Database Systems, Artificial Intelligence, Statistics & Probability",
+				"Affiliations: Hack4Impact (Developer), ASME (Technical Coordinator), Drexel AI, Stanford's CiP"
+			]
+		}
+	],
+	"skills": [
+		{
+			"label": "Languages",
+			"items": [
+				"Go (Golang)",
+				"Python",
+				"C/C++",
+				"Java",
+				"JavaScript/TypeScript",
+				"YAML",
+				"SQL",
+				"Bash",
+				"HTML/CSS"
+			]
+		},
+		{
+			"label": "Frameworks",
+			"items": [
+				"Spring Boot",
+				"Next.js",
+				"Angular",
+				"JUnit",
+				"Hono"
+			]
+		},
+		{
+			"label": "Libraries & Tools",
+			"items": [
+				"Claude Code",
+				"Git",
+				"Jira",
+				"React",
+				"Node.js",
+				"Pandas",
+				"Cloudflare",
+				"Kafka",
+				"Azure DevOps"
+			]
+		},
+		{
+			"label": "Databases & Infrastructure",
+			"items": [
+				"PostgreSQL",
+				"MySQL",
+				"MongoDB",
+				"Docker",
+				"Kubernetes",
+				"Linux",
+				"AWS",
+				"Azure",
+				"Helm"
+			]
+		}
+	],
+	"experience": [
+		{
+			"company": "VisioneerIT",
+			"role": "Software Engineer Intern",
+			"location": "Baltimore, MD",
+			"startDate": "Mar 2026",
+			"endDate": "Sept 2026",
+			"highlights": [
+				"Built Next.js/React components and tier-gated APIs across multiple government data sources, giving users filtered access to 100k+ government agencies and bids.",
+				"Engineered a 5-stage RAG hybrid search pipeline using BGE, BM25 and CE reranking across 87,000+ indexed government policy documents, achieving sub-600ms query latency and 85.9% average relevance score.",
+				"Developed automated ETL pipeline to scrape active government solicitations across all 50 states, configuring schema mappings and deduplication logic for MySQL tables."
+			]
+		},
+		{
+			"company": "Bentley Systems",
+			"role": "Software Engineer Intern",
+			"location": "Philadelphia, PA",
+			"startDate": "Mar 2025",
+			"endDate": "Sept 2025",
+			"highlights": [
+				"Modernized legacy RPC protocols to REST endpoints with session affinity using cookies, reducing response times from ~2s to 0.2s for returning users across a Go-based Kubernetes backend.",
+				"Deployed an automated vertical scaling pipeline across 8+ regions using an open-source recommendation engine, generating right-sizing reports that improved utilization by 35% and saved ~$2,000 annually per node.",
+				"Engineered Grafana dashboards and alert rules for 20+ microservices, enabling proactive failure detection to protect service level agreements (SLAs) and prevent costly downtime."
+			]
+		},
+		{
+			"company": "Drexel University",
+			"role": "Research Assistant",
+			"location": "Philadelphia, PA",
+			"startDate": "Jun 2024",
+			"endDate": "Sept 2024",
+			"highlights": [
+				"Developed a specialized full-stack NextJS web platform for analyzing stigma in drug-related content, integrating Hono, Docker, and MongoDB to accelerate data processing workflows for researchers.",
+				"Built and deployed custom LLM workflows integrating OpenAI GPT-4 for advanced NLP content analysis, preserving users’ stylistic profiles with over 90% classification accuracy."
+			]
+		}
+	]
+}

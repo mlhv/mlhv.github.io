@@ -13,8 +13,11 @@ A long-form engineering writing entry in the Blog section, distinct from a Proje
 _Avoid_: Article, blog (as a count noun — "a blog" — reserve "Blog" for the section itself)
 
 **Work Experience Entry**:
-A professional role (internship or job) held, shown in the Work Experience section and reused as the data source for the Resume page.
+A professional role (internship or job) held, shown in the Work Experience section and on the Resume page. Never authored in this repo: synced from the master résumé into `src/data/resume.json` by `npm run sync-resume` (ADR 0003).
 _Avoid_: Job, position (as the entry name)
+
+**Resume**:
+The `/resume` page plus `public/resume.pdf`, both generated from the master résumé. The phone number is never published.
 
 **Desktop**:
 The homepage layout: a fake OS-desktop metaphor containing one Window per nav section.
