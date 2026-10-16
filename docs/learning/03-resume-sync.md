@@ -22,13 +22,13 @@ LaTeX arguments nest braces (`\textbf{a \textit{b}}`), which a regex cannot matc
 Node runs `.ts` files directly by stripping the type annotations (no compile step). That is why `scripts/sync-resume.ts` imports `'../src/lib/resume.ts'` with the extension: Node does not guess extensions. Type stripping only removes types, so syntax that needs real transformation (like enums) is off limits. `npm run typecheck` still checks the script.
 
 ### Failing loudly on input drift
-`parseResume` throws if the résumé no longer matches the expected template, and it runs before anything is written. A loud failure is better than a quietly half-empty site. The script also refuses to build the PDF if a phone number survives stripping.
+`parseResume` throws if the résumé no longer matches the expected template, and it runs before anything is written. It checks that the Education, Skills and Experience sections each yield entries, and that every experience has a start date (dates may be separated by `--`, `–` or `\textendash`). A leading `+1` country code is stripped along with the phone number. A loud failure is better than a quietly half-empty site. The script also refuses to build the PDF if a phone number survives stripping.
 
 ### Generated-and-committed artifacts
 `resume.json` and `resume.pdf` are outputs, never hand-edited, but they are committed. The deploy then depends only on this repo, and a diff after each sync shows exactly what changed.
 
 ### Idempotent seeding
-`--seed-projects` only creates project files that are missing and never overwrites existing ones. Running it twice is the same as running it once, and deleting a project file keeps it deleted unless you pass the flag.
+`--seed-projects` only creates project files that are missing and never overwrites existing ones. A project with no tech stack in its résumé heading is skipped with a warning, because the projects schema requires at least one entry. Running it twice is the same as running it once, and deleting a project file keeps it deleted unless you pass the flag.
 
 ## Why it's done this way
 The résumé is already maintained for job applications, so a second hand-written copy would drift (ADR 0003). The résumé repo also holds private job-tracking data, so CI cannot read it; syncing locally and committing the output keeps the deploy self-contained. Projects are seeded once and then owned here because each needs a logo and write-up the résumé cannot hold.

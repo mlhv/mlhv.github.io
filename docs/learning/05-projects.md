@@ -26,7 +26,7 @@ The schema describes front matter. Adding a file with only `title:` makes `npm r
 `Window` takes `{ title, href?, headingLevel? }` and a default `<slot />`, so the same chrome wraps any content (Task 8 reuses it).
 
 ### Why the whole window is the link
-With `href`, `Window` renders an `<a>` instead of a `<section>`. One big link is a large click target and avoids invalid nested `<a>` elements, so cards must not contain other links.
+With `href`, `Window` renders an `<a>` instead of a `<section>`. One big link is a large click target and avoids invalid nested `<a>` elements, so cards must not contain other links. The heading gets a unique id and the `<a>` points at it with `aria-labelledby`, so the link is announced by its title rather than by the title plus description plus every tag.
 
 ### Intrinsic responsive grid
 `repeat(auto-fill, minmax(min(100%, 18rem), 1fr))` fits as many columns as space allows with no media queries; `min(100%, ...)` stops overflow on narrow phones.

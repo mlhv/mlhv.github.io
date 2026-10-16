@@ -31,9 +31,9 @@ The homepage is a summary, not a second copy of the content, so it reads from th
 ## Try it yourself
 
 Exercise: add a fifth decorative "README.txt" window (no link) with a one-line bio, placed in the empty grid area.
-Hint: `Window` makes a `<section>` when `href` is omitted, so you can pass only `title` and a slot. At 768px and up, the grid has room in the lower right, because the contact window spans columns 3 to 8 on row 3.
+Hint: `Window` makes a `<section>` when `href` is omitted, so you can pass only `title` and a slot. At 768px and up, the empty cells are in row 3, columns 1–2 and 9–12 (the contact window spans columns 3 to 8), plus the space below the Blog window.
 Check: `npm run dev` (or `astro dev --background`), then view the page at 767px and at 1024px. At 767px it must still be one column with no overlap, and at 1024px the new window must sit in an empty area of the grid.
 
 ## Interview angle
 
-I laid out the page with explicit CSS Grid placement on wrapper divs, and wrote the base styles for a single column with media queries only adding the desktop layout. Every number and sentence on the page is derived from the same data modules as the detail pages, so the homepage cannot go stale.
+I laid out the page with explicit CSS Grid placement on wrapper divs, and wrote the base styles for a single column with media queries only adding the desktop layout. Every number on the page is derived from the same data modules as the detail pages, so those cannot go stale; the one-line tagline in `src/pages/index.astro` is hand-written.

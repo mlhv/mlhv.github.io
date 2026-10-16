@@ -2,7 +2,7 @@
 
 ## What we built
 - `.github/workflows/deploy.yml`: one workflow with two jobs. `build` installs, tests, typechecks and builds; `deploy` publishes `dist/` to GitHub Pages.
-- `astro.config.mjs` now sets `site: "https://mlhv.github.io"`. Astro uses it to make absolute URLs (sitemap, canonical links). No `base`, because this is a user site served from the domain root (ADR 0002).
+- `astro.config.mjs` now sets `site: "https://mlhv.github.io"`. It enables absolute URLs (`Astro.site`), e.g. for a sitemap or canonical links if added later. No `base`, because this is a user site served from the domain root (ADR 0002).
 - Every push to `main` runs the full pipeline and deploys. Every pull request runs `build` only, so its checks go red or green without touching the live site.
 - The pipeline runs the same npm scripts you run locally (`npm test`, `npm run typecheck`, `npm run build`), so "green in CI" means "green on my machine from a clean install".
 
@@ -29,7 +29,7 @@ The flow has two steps. `upload-pages-artifact` packs `dist/` into a tarball and
 - `contents: read` is the minimum for checking out the code.
 
 ### `concurrency`
-`group: pages` with `cancel-in-progress: false` means only one Pages deployment runs at a time. If two pushes land close together, the second waits for the first to finish instead of killing it halfway. Cancelling a deploy could leave the site in a mixed state, so we queue instead of cancel.
+`group: pages` with `cancel-in-progress: false` sits on the `deploy` job (not the whole workflow), so only one Pages deployment runs at a time. At workflow level, a queued pull-request run could take the pending slot and cancel a waiting `main` deploy; on the job, PR runs (which skip `deploy`) never enter the queue. If two pushes land close together, the second waits for the first to finish instead of killing it halfway. Cancelling a deploy could leave the site in a mixed state, so we queue instead of cancel.
 
 ### Why tests and typecheck gate the deploy
 `deploy` needs `build`, and `build` runs `npm test` and `npm run typecheck` before `npm run build`. A failing test or type error stops the job before the artifact is uploaded, so broken code never reaches the live site. The gate costs a few seconds of CI time and saves a broken deploy.

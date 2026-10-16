@@ -29,7 +29,7 @@ The script imports `filterPostsByTag` from `src/lib/blog.ts`, the same function 
 Each filter button is a real `<button type="button">` whose `aria-pressed` tells assistive tech which filter is active; the same attribute drives the active styling.
 
 ### `history.replaceState` for shareable state
-Selecting a tag updates the URL to `?tag=go` without adding history entries. On load, a `?tag=` that matches a real tag is applied; an unknown tag is ignored so the page never opens empty.
+Selecting a tag updates the URL to `?tag=go` without adding history entries. On load, a `?tag=` that matches a real tag is applied; an unknown tag is ignored so the page never opens empty. That guard is the unit-tested `initialTag` in `src/lib/blog.ts`.
 
 ### `Intl.DateTimeFormat` with `timeZone: "UTC"`
 Front matter dates like `2026-10-01` parse as UTC midnight. Formatting in the viewer's local zone would show Sept 30 for anyone west of UTC, so formatting pins `timeZone: "UTC"`.
