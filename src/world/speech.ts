@@ -28,7 +28,8 @@ export interface Speech {
 }
 
 /** Clicks on these never reach the World: content always wins. */
-const SOLID = 'a, button, input, select, textarea, label, header, [data-world-solid]';
+const INTERACTIVE = 'a, button, input, select, textarea, label, header';
+const SOLID = '[data-world-solid]';
 
 export const createSpeech = ({
 	camera,
@@ -48,27 +49,33 @@ export const createSpeech = ({
 	const said = new Map<string, string>();
 	let speaker: SpeechTarget | null = null;
 
+	function close() {
+		speaker = null;
+		bubble.hidden = true;
+	}
+
 	const update = () => {
 		if (!speaker) return;
 		bounds.setFromObject(speaker.object);
 		bounds.getCenter(head);
 		head.y = bounds.max.y;
 		head.project(camera);
-		if (head.z > 1) {
-			bubble.style.visibility = 'hidden';
+		// For a perspective camera, NDC z > 1 means behind the camera. Off-screen speakers lose their bubble too.
+		if (head.z > 1 || head.x < -1 || head.x > 1 || head.y < -1 || head.y > 1) {
+			close();
 			return;
 		}
-		bubble.style.visibility = '';
 		// Clamped so a speaker near the edge of a phone screen keeps its whole bubble on screen.
 		const half = bubble.offsetWidth / 2;
 		const x = Math.min(window.innerWidth - 8 - half, Math.max(8 + half, ((head.x + 1) / 2) * window.innerWidth));
 		const y = ((1 - head.y) / 2) * window.innerHeight;
+		// Never let the bubble slide up under the header: close it instead.
+		const headerBottom = document.querySelector('header')?.getBoundingClientRect().bottom ?? 0;
+		if (y - 12 - bubble.offsetHeight < headerBottom) {
+			close();
+			return;
+		}
 		bubble.style.transform = `translate(${x}px, ${y}px) translate(-50%, calc(-100% - 12px))`;
-	};
-
-	const close = () => {
-		speaker = null;
-		bubble.hidden = true;
 	};
 
 	const open = (target: SpeechTarget) => {
@@ -92,8 +99,19 @@ export const createSpeech = ({
 	};
 
 	// `click`, not `pointerdown`: a finger drag that starts on a character must scroll, not talk.
+	const handled = new WeakSet<Event>();
 	const onClick = (event: MouseEvent) => {
-		if (event.target instanceof Element && event.target.closest(SOLID)) return;
+		if (handled.has(event)) return;
+		handled.add(event);
+		if (event.target instanceof Element) {
+			// Inside the bubble: leave it be. Links, buttons and the header navigate and never touch the World.
+			if (bubble.contains(event.target) || event.target.closest(INTERACTIVE)) return;
+			// Other solid regions (intro card, credit, hint) only dismiss; they never open a bubble.
+			if (event.target.closest(SOLID)) {
+				close();
+				return;
+			}
+		}
 		pointer.set((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1);
 		raycaster.setFromCamera(pointer, camera);
 		const [hit] = raycaster.intersectObjects(
@@ -109,11 +127,16 @@ export const createSpeech = ({
 		if (event.key === 'Escape') close();
 	};
 
+	// iOS Safari only bubbles taps to elements with their own click listener, so listen on <main>.
+	// <main> is narrower than the viewport on wide screens, so `document` stays as a gutter fallback (deduped).
+	const main = document.querySelector('main');
+	main?.addEventListener('click', onClick);
 	document.addEventListener('click', onClick);
 	document.addEventListener('keydown', onKeyDown);
 	return {
 		update,
 		dispose: () => {
+			main?.removeEventListener('click', onClick);
 			document.removeEventListener('click', onClick);
 			document.removeEventListener('keydown', onKeyDown);
 			close();

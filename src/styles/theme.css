@@ -36,8 +36,8 @@
         --color-on-accent: #0f1a14;
         --color-secondary: #7fb2ea;
         --color-on-secondary: #0f1a14;
-    --color-world-sky: #16233a;    /* night */
-    --color-world-ground: #1d3a2a;
+        --color-world-sky: #16233a;    /* night */
+        --color-world-ground: #1d3a2a;
     }
 }
 
