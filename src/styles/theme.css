@@ -2,8 +2,8 @@
     color-scheme: light;
     /* colors — light (default): "Pallet Town" grass green + sky blue on a pale meadow */
     --color-background: #f4f7f2;   /* page background */
-    --color-desk: #e3ecdf;         /* the Desktop area behind Windows — a step darker than the page */
-    --color-surface: #ffffff;      /* Window panels, cards — pop off the tinted page */
+    --color-desk: #e3ecdf;         /* tinted chrome (nav) — a step darker than the page */
+    --color-surface: #ffffff;      /* Windows and cards on inner pages — pop off the tinted page */
     --color-border: #c9d6c4;
     --color-foreground: #1f2a2e;   /* ink */
     --color-muted: #55636a;        /* secondary/quieter text */
@@ -14,6 +14,14 @@
     --color-on-secondary: #ffffff;
     --color-world-sky: #bfe3ff;    /* World fallback gradient (day) */
     --color-world-ground: #9fd99a;
+
+    /* Stage glass cards: the same dark glass in both themes, so these are not redefined for dark mode.
+       glass-contrast.test.ts checks each text colour against this glass over pure white (the worst case). */
+    --color-glass: rgba(14, 22, 20, 0.78);
+    --color-on-glass: #ffffff;
+    --color-glass-muted: #c5d3cc;
+    --color-glass-accent: #9be3b4;
+    --color-glass-border: rgba(155, 227, 180, 0.45);
 
     --radius: 12px;
 
