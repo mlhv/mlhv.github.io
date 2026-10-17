@@ -75,7 +75,7 @@ const tree: Building = {
 };
 
 const TREE_SPOTS: readonly (readonly [number, number])[] = [
-	[-80, -12], [-72, 28], [-46, 30], [-22, -46], [14, 32], [30, 38], [46, 26], [56, -30], [-4, 36],
+	[-80, -12], [-86, 14], [-46, 30], [-22, -46], [14, 32], [30, 38], [46, 26], [56, -30], [-4, 36],
 ];
 
 export const PLACEMENTS: readonly Placement[] = [

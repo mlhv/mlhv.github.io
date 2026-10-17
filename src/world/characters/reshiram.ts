@@ -4,7 +4,7 @@ import type { CastMember } from '../cast';
 export const reshiram: CastMember = {
 	id: 'reshiram',
 	name: 'Reshiram',
-	position: [80, -4],
+	position: [74, -4],
 	facing: -0.4,
 	idle: { kind: 'soar' },
 	lines: ['Reshiram!', '*a warm, bright roar*', 'Truth lights the way.'],

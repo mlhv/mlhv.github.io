@@ -85,7 +85,8 @@ export const startWorld = async (
 			new Box3().setFromObject(object).getSize(size);
 			const shadow = new Mesh(shadowGeometry, shadowMaterial);
 			shadow.rotation.x = -Math.PI / 2;
-			shadow.scale.setScalar(Math.max(size.x, size.z) * 0.45);
+			// Capped so Reshiram's wingspan doesn't spread a blob past the edge of his cliff.
+			shadow.scale.setScalar(Math.min(10, Math.max(size.x, size.z) * 0.45));
 			scene.add(object, shadow);
 			return { member, object, shadow, seed: index * 1.7, hopStart: -Infinity };
 		}),

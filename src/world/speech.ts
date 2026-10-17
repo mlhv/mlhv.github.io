@@ -59,7 +59,9 @@ export const createSpeech = ({
 			return;
 		}
 		bubble.style.visibility = '';
-		const x = ((head.x + 1) / 2) * window.innerWidth;
+		// Clamped so a speaker near the edge of a phone screen keeps its whole bubble on screen.
+		const half = bubble.offsetWidth / 2;
+		const x = Math.min(window.innerWidth - 8 - half, Math.max(8 + half, ((head.x + 1) / 2) * window.innerWidth));
 		const y = ((1 - head.y) / 2) * window.innerHeight;
 		bubble.style.transform = `translate(${x}px, ${y}px) translate(-50%, calc(-100% - 12px))`;
 	};

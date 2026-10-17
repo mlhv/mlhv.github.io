@@ -7,11 +7,11 @@ export interface CameraKey {
 
 /** West to east: Minh → café (Joker) → courthouse (Phoenix) → town hall (Isabelle) → Reshiram's cliff. */
 export const CAMERA_KEYS: readonly CameraKey[] = [
-	{ position: [-72, 26, 62], target: [-56, 8, 4] },
+	{ position: [-86, 30, 128], target: [-106, -14, -24] },
 	{ position: [-34, 28, 64], target: [-28, 8, -10] },
 	{ position: [6, 28, 64], target: [8, 8, -12] },
 	{ position: [42, 30, 66], target: [40, 10, -12] },
-	{ position: [62, 46, 82], target: [80, 40, -4] },
+	{ position: [64, 48, 144], target: [76, 38, -10] },
 ];
 
 const clamp01 = (value: number) => (Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : 0);
