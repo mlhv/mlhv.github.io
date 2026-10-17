@@ -21,6 +21,7 @@ import type { CastMember } from './cast';
 import { cast } from './characters';
 import { idlePose } from './idle';
 import { loadCharacter } from './load-character';
+import { createSpeech, hopHeight } from './speech';
 import { surfaceY } from './terrain';
 import { PRESETS, documentTheme, watchTheme, type WorldTheme } from './theme';
 import { buildTown } from './town';
@@ -56,7 +57,7 @@ const pageProgress = () => scrollProgress(window.scrollY, document.documentEleme
 /** Builds the World into `canvas` and starts it. Resolves to a stop function that frees every GPU resource. */
 export const startWorld = async (
 	canvas: HTMLCanvasElement,
-	_bubble: HTMLElement,
+	bubble: HTMLElement,
 	options: WorldOptions,
 ): Promise<() => void> => {
 	const renderer = new WebGLRenderer({ canvas, antialias: true });
@@ -130,14 +131,27 @@ export const startWorld = async (
 		const x = baseX + pose.dx;
 		const z = baseZ + pose.dz;
 		const ground = surfaceY(x, z);
-		actor.object.position.set(x, ground + pose.dy, z);
+		const hop = options.reducedMotion ? 0 : hopHeight(t - actor.hopStart);
+		actor.object.position.set(x, ground + pose.dy + hop, z);
 		actor.object.rotation.set(0, pose.heading ?? actor.member.facing, pose.sway);
 		actor.shadow.position.set(x, ground + 0.05, z);
 	};
 
-	const render = () => renderer.render(scene, camera);
-
 	const start = performance.now();
+	const speech = createSpeech({
+		camera,
+		bubble,
+		targets: actors.map(({ member, object }) => ({ member, object })),
+		onPick: (id) => {
+			const actor = actors.find((a) => a.member.id === id);
+			if (actor) actor.hopStart = (performance.now() - start) / 1000;
+			if (options.reducedMotion) render();
+		},
+	});
+	const render = () => {
+		renderer.render(scene, camera);
+		speech.update();
+	};
 	let last = start;
 	let frame = 0;
 	const tick = (now: number) => {
@@ -176,6 +190,7 @@ export const startWorld = async (
 		cancelAnimationFrame(frame);
 		window.removeEventListener('resize', onResize);
 		stopTheme();
+		speech.dispose();
 		disposeScene(scene);
 		renderer.dispose();
 		renderer.forceContextLoss();
