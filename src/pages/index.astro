@@ -2,6 +2,7 @@
 import { getCollection } from "astro:content";
 import Layout from "../layouts/Layout.astro";
 import Window from "../components/Window.astro";
+import World from "../components/World.astro";
 import { getVisiblePosts } from "../lib/content";
 import { sortProjects } from "../lib/projects";
 import { resume } from "../lib/resume-data";
@@ -12,7 +13,8 @@ const [latestRole] = resume.experience;
 ---
 
 <Layout title="Home">
-	<section class="intro">
+	<World />
+	<section class="intro" data-world-solid>
 		<h1 class="page-title">{resume.name}</h1>
 		<p class="tagline">
 			Software engineering student at Drexel University building backend, infrastructure, and applied-AI systems.
@@ -56,11 +58,24 @@ const [latestRole] = resume.experience;
 			</Window>
 		</div>
 	</div>
+	<div class="runway" aria-hidden="true">
+		<p class="runway-hint" data-world-solid>Keep scrolling to explore the town ↓</p>
+	</div>
+	<p class="credit" data-world-solid>
+		Characters © Nintendo / Game Freak / The Pokémon Company / Atlus / Capcom. Fan art.
+	</p>
 </Layout>
 
 <style>
 	.intro {
+		width: fit-content;
+		max-width: 46rem;
 		margin-bottom: 2rem;
+		padding: 1.25rem 1.5rem 0.5rem;
+		background: var(--color-surface);
+		border: 3px solid var(--color-foreground);
+		border-radius: var(--radius);
+		box-shadow: 6px 6px 0 var(--color-foreground);
 	}
 
 	.tagline {
@@ -73,11 +88,6 @@ const [latestRole] = resume.experience;
 		grid-template-columns: 1fr;
 		gap: 1.5rem;
 		padding: 1.25rem;
-		background-color: var(--color-desk);
-		background-image: radial-gradient(var(--color-border) 1.5px, transparent 1.5px);
-		background-size: 16px 16px;
-		border: 3px solid var(--color-foreground);
-		border-radius: calc(var(--radius) * 1.5);
 	}
 
 	.slot p {
@@ -100,8 +110,48 @@ const [latestRole] = resume.experience;
 		overflow-wrap: anywhere;
 	}
 
+	/* Extra scroll room so the camera can travel to Reshiram's cliff; only while the World is moving. */
+	.runway,
+	.credit {
+		display: none;
+	}
+
+	:global(:root[data-world="motion"]) .runway {
+		display: block;
+		height: 90vh;
+	}
+
+	:global(:root[data-world]) .credit {
+		display: block;
+	}
+
+	.runway-hint {
+		width: fit-content;
+		margin: 3rem auto 0;
+		padding: 0.4rem 1rem;
+		font-family: var(--font-heading);
+		background: var(--color-surface);
+		border: 2px solid var(--color-foreground);
+		border-radius: 999px;
+	}
+
+	.credit {
+		width: fit-content;
+		max-width: none;
+		margin: 1.5rem auto 0;
+		padding: 0.25rem 0.75rem;
+		font-size: 0.8rem;
+		color: var(--color-muted);
+		background: var(--color-surface);
+		border-radius: 999px;
+	}
+
 	/* Below 768px the windows stack in one column (the grid default above). */
 	@media (min-width: 768px) {
+		:global(:root[data-world="motion"]) .runway {
+			height: 160vh;
+		}
+
 		.desktop {
 			grid-template-columns: repeat(12, 1fr);
 			gap: 2rem;

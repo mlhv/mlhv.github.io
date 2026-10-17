@@ -1,0 +1,109 @@
+---
+// The homepage World: a fixed full-viewport canvas behind all content.
+// The CSS gradient is the fallback when WebGL, JavaScript or the three.js import is unavailable.
+---
+
+<div class="world" aria-hidden="true">
+	<canvas data-world></canvas>
+</div>
+<p class="speech" data-world-speech data-world-solid role="status" aria-live="polite" hidden></p>
+
+<script>
+	type Stop = () => void;
+	let stop: Stop | null = null;
+
+	const hasWebGL = () => {
+		try {
+			const probe = document.createElement("canvas");
+			const gl = probe.getContext("webgl2") ?? probe.getContext("webgl");
+			gl?.getExtension("WEBGL_lose_context")?.loseContext();
+			return gl !== null;
+		} catch {
+			return false;
+		}
+	};
+
+	const whenIdle = (callback: () => void) =>
+		"requestIdleCallback" in window ? window.requestIdleCallback(callback, { timeout: 2000 }) : setTimeout(callback, 200);
+
+	document.addEventListener("astro:page-load", () => {
+		const canvas = document.querySelector<HTMLCanvasElement>("canvas[data-world]");
+		const bubble = document.querySelector<HTMLElement>("[data-world-speech]");
+		if (!canvas || !bubble || !hasWebGL()) return;
+		const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+		whenIdle(async () => {
+			if (!canvas.isConnected) return; // navigated away before idle
+			try {
+				const { startWorld } = await import("../world/main");
+				if (!canvas.isConnected) return;
+				const started = await startWorld(canvas, bubble, { reducedMotion });
+				// Navigated away while the World was building: stop it at once.
+				if (!canvas.isConnected) return started();
+				stop = started;
+				document.documentElement.dataset.world = reducedMotion ? "still" : "motion";
+			} catch (error) {
+				console.error("World failed to start; keeping the gradient.", error);
+			}
+		});
+	});
+
+	document.addEventListener("astro:before-swap", () => {
+		stop?.();
+		stop = null;
+		delete document.documentElement.dataset.world;
+	});
+</script>
+
+<style>
+	.world {
+		position: fixed;
+		inset: 0;
+		z-index: -1;
+		background: linear-gradient(var(--color-world-sky) 0 55%, var(--color-world-ground) 55% 100%);
+	}
+
+	/* A light wash keeps the World a little soft behind content. */
+	.world::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		background: var(--color-background);
+		opacity: 0.12;
+		pointer-events: none;
+	}
+
+	canvas {
+		display: block;
+		width: 100%;
+		height: 100%;
+		opacity: 0;
+		transition: opacity 600ms ease;
+	}
+
+	canvas.ready {
+		opacity: 1;
+	}
+
+	.speech {
+		position: fixed;
+		top: 0;
+		left: 0;
+		z-index: 20;
+		max-width: min(18rem, 80vw);
+		margin: 0;
+		padding: 0.5rem 0.8rem;
+		background: var(--color-surface);
+		color: var(--color-foreground);
+		border: 2px solid var(--color-foreground);
+		border-radius: var(--radius);
+		box-shadow: 3px 3px 0 var(--color-foreground);
+		font-size: 0.95rem;
+		line-height: 1.4;
+	}
+
+	.speech :global(strong) {
+		font-family: var(--font-heading);
+		color: var(--color-accent);
+	}
+</style>

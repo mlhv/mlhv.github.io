@@ -20,12 +20,24 @@ _Avoid_: Job, position (as the entry name)
 The `/resume` page plus `public/resume.pdf`, both generated from the master résumé. The phone number is never published.
 
 **Desktop**:
-The homepage layout: a fake OS-desktop metaphor containing one Window per nav section.
+The homepage layout: a fake OS-desktop metaphor containing one Window per nav section, floating over the World.
 _Avoid_: Homepage (when specifically discussing the desktop metaphor, not the page in general)
 
 **Window**:
 A static, non-draggable styled panel on the Desktop representing one nav section (Projects, Work Experience, Blog, Contact); clicking it navigates to that section's real page.
 _Avoid_: Card, tile, icon
+
+**World**:
+The full-screen 3D voxel town rendered behind the homepage content; the camera travels across it as the page scrolls, and it switches between day and night with the theme. Purely decorative: nothing essential lives only in the World.
+_Avoid_: Scene, background, game
+
+**Cast Member**:
+A character standing in the World (the owner or a fan-art game character), clickable for a speech bubble.
+_Avoid_: NPC, sprite, avatar
+
+**Voxel Model**:
+A character or prop defined as a palette plus text layer grids (or boxes painted into them), turned into a merged mesh at runtime.
+_Avoid_: Asset, 3D model (when referring to these code-authored grids)
 
 ## Structure
 
