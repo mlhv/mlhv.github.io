@@ -198,7 +198,9 @@ export const startWorld = async (
 	});
 	const onResize = () => {
 		resize();
-		moveTo(shotFor(step, camera.aspect));
+		const shot = shotFor(step, camera.aspect);
+		if (shot !== glide.to) moveTo(shot);
+		else if (options.reducedMotion) render();
 	};
 	window.addEventListener('resize', onResize);
 
