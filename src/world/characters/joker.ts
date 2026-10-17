@@ -5,7 +5,7 @@ import { humanoidBoxes } from './humanoid';
 export const joker: CastMember = {
 	id: 'joker',
 	name: 'Joker',
-	position: [-30, -6],
+	position: [6, -6],
 	facing: 0.3,
 	idle: { kind: 'bob' },
 	lines: ['…', "Leblanc's coffee is the best in town.", 'Take your time.'],

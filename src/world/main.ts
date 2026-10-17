@@ -16,7 +16,8 @@ import {
 	type Material,
 	type Object3D,
 } from 'three';
-import { cameraAt, scrollProgress } from './camera-path';
+import type { StepId } from '../stage/steps';
+import { glideAt, retarget, shotFor, still, type CameraKey, type Glide } from './camera-path';
 import type { CastMember } from './cast';
 import { cast } from './characters';
 import { idlePose } from './idle';
@@ -28,6 +29,15 @@ import { buildTown } from './town';
 
 export interface WorldOptions {
 	reducedMotion: boolean;
+	/** The Step to frame first (from the Stage, or the URL hash before the Stage has spoken). */
+	initialStep: StepId;
+}
+
+export interface WorldController {
+	/** Frees every GPU resource and listener. */
+	stop: () => void;
+	/** Glides the camera to a Step's Host (cuts instantly with reduced motion). */
+	goTo: (step: StepId) => void;
 }
 
 export interface WorldHooks {
@@ -52,14 +62,12 @@ const disposeScene = (scene: Scene) =>
 		}
 	});
 
-const pageProgress = () => scrollProgress(window.scrollY, document.documentElement.scrollHeight, window.innerHeight);
-
-/** Builds the World into `canvas` and starts it. Resolves to a stop function that frees every GPU resource. */
+/** Builds the World into `canvas` and starts it on `options.initialStep`. */
 export const startWorld = async (
 	canvas: HTMLCanvasElement,
 	bubble: HTMLElement,
 	options: WorldOptions,
-): Promise<() => void> => {
+): Promise<WorldController> => {
 	const renderer = new WebGLRenderer({ canvas, antialias: true });
 	const coarse = window.matchMedia('(pointer: coarse)').matches;
 	renderer.setPixelRatio(Math.min(window.devicePixelRatio, coarse ? 1.5 : 2));
@@ -119,9 +127,13 @@ export const startWorld = async (
 		camera.updateProjectionMatrix();
 	};
 
-	let progress = options.reducedMotion ? 0 : pageProgress();
-	const aimCamera = () => {
-		const { position, target } = cameraAt(progress);
+	const start = performance.now();
+	const seconds = () => (performance.now() - start) / 1000;
+
+	let step = options.initialStep;
+	let glide: Glide = still(shotFor(step, 1)); // re-aimed for the real aspect right after the first resize()
+	const aimCamera = (t: number) => {
+		const { position, target } = glideAt(glide, t);
 		camera.position.set(...position);
 		camera.lookAt(...target);
 	};
@@ -138,14 +150,13 @@ export const startWorld = async (
 		actor.shadow.position.set(x, ground + 0.05, z);
 	};
 
-	const start = performance.now();
 	const speech = createSpeech({
 		camera,
 		bubble,
 		targets: actors.map(({ member, object }) => ({ member, object })),
 		onPick: (id) => {
 			const actor = actors.find((a) => a.member.id === id);
-			if (actor) actor.hopStart = (performance.now() - start) / 1000;
+			if (actor) actor.hopStart = seconds();
 			if (options.reducedMotion) render();
 		},
 	});
@@ -153,23 +164,32 @@ export const startWorld = async (
 		renderer.render(scene, camera);
 		speech.update();
 	};
-	let last = start;
+
+	/** Points the camera at `shot`: a cut with reduced motion, otherwise a glide from where it is now. */
+	const moveTo = (shot: CameraKey) => {
+		if (options.reducedMotion) {
+			glide = still(shot);
+			aimCamera(0);
+			render();
+		} else {
+			glide = retarget(glide, shot, seconds());
+		}
+	};
+
 	let frame = 0;
 	const tick = (now: number) => {
 		frame = requestAnimationFrame(tick);
-		const dt = Math.min(0.1, (now - last) / 1000);
-		last = now;
 		if (document.hidden) return;
 		const t = (now - start) / 1000;
-		progress += (pageProgress() - progress) * Math.min(1, dt * 6);
-		aimCamera();
+		aimCamera(t);
 		for (const actor of actors) place(actor, t);
 		render();
 	};
 
 	resize();
 	applyTheme(documentTheme());
-	aimCamera();
+	glide = still(shotFor(step, camera.aspect));
+	aimCamera(0);
 	for (const actor of actors) place(actor, 0);
 
 	const stopTheme = watchTheme((theme) => {
@@ -178,7 +198,7 @@ export const startWorld = async (
 	});
 	const onResize = () => {
 		resize();
-		if (options.reducedMotion) render();
+		moveTo(shotFor(step, camera.aspect));
 	};
 	window.addEventListener('resize', onResize);
 
@@ -187,15 +207,22 @@ export const startWorld = async (
 	canvas.classList.add('ready');
 	performance.mark('world:start');
 
-	return () => {
-		cancelAnimationFrame(frame);
-		window.removeEventListener('resize', onResize);
-		stopTheme();
-		speech.dispose();
-		disposeScene(scene);
-		renderer.dispose();
-		renderer.forceContextLoss();
-		canvas.classList.remove('ready');
-		performance.mark('world:stop');
+	return {
+		stop: () => {
+			cancelAnimationFrame(frame);
+			window.removeEventListener('resize', onResize);
+			stopTheme();
+			speech.dispose();
+			disposeScene(scene);
+			renderer.dispose();
+			renderer.forceContextLoss();
+			canvas.classList.remove('ready');
+			performance.mark('world:stop');
+		},
+		goTo: (next) => {
+			if (next === step) return;
+			step = next;
+			moveTo(shotFor(step, camera.aspect));
+		},
 	};
 };

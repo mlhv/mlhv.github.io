@@ -9,8 +9,19 @@
 <p class="speech" data-world-speech data-world-solid role="status" aria-live="polite" hidden></p>
 
 <script>
-	type Stop = () => void;
-	let stop: Stop | null = null;
+	import { isStepId, stepFromHash, type StepId } from "../stage/steps";
+	import type { WorldController } from "../world/main";
+
+	let world: WorldController | null = null;
+	/** The Step to frame. Stage events keep it current even before the World has finished starting. */
+	let step: StepId = stepFromHash(location.hash);
+
+	document.addEventListener("stage:step", (event) => {
+		const id = (event as CustomEvent<{ id?: unknown }>).detail?.id;
+		if (!isStepId(id)) return;
+		step = id;
+		world?.goTo(id);
+	});
 
 	const hasWebGL = () => {
 		try {
@@ -37,10 +48,11 @@
 			try {
 				const { startWorld } = await import("../world/main");
 				if (!canvas.isConnected) return;
-				const started = await startWorld(canvas, bubble, { reducedMotion });
+				const started = await startWorld(canvas, bubble, { reducedMotion, initialStep: step });
 				// Navigated away while the World was building: stop it at once.
-				if (!canvas.isConnected) return started();
-				stop = started;
+				if (!canvas.isConnected) return started.stop();
+				world = started;
+				world.goTo(step); // a Stage event may have arrived while the World was building
 				document.documentElement.dataset.world = reducedMotion ? "still" : "motion";
 			} catch (error) {
 				console.error("World failed to start; keeping the gradient.", error);
@@ -49,8 +61,8 @@
 	});
 
 	document.addEventListener("astro:before-swap", () => {
-		stop?.();
-		stop = null;
+		world?.stop();
+		world = null;
 		delete document.documentElement.dataset.world;
 	});
 </script>

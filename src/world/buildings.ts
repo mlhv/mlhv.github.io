@@ -79,8 +79,8 @@ const TREE_SPOTS: readonly (readonly [number, number])[] = [
 ];
 
 export const PLACEMENTS: readonly Placement[] = [
-	{ building: cafe, at: [-52, -40] },
-	{ building: courthouse, at: [-8, -44] },
+	{ building: cafe, at: [-8, -40] },
+	{ building: courthouse, at: [-56, -44] },
 	{ building: townHall, at: [26, -42] },
 	...TREE_SPOTS.map((at) => ({ building: tree, at })),
 ];

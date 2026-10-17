@@ -5,7 +5,7 @@ import { humanoidBoxes } from './humanoid';
 export const phoenix: CastMember = {
 	id: 'phoenix',
 	name: 'Phoenix Wright',
-	position: [8, -8],
+	position: [-34, -8],
 	facing: -0.15,
 	idle: { kind: 'bob' },
 	lines: ['Objection!', "Hold it! Have you seen Minh's résumé?", 'Take that!'],

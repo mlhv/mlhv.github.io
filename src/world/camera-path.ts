@@ -1,3 +1,5 @@
+import { STEPS, type StepId } from '../stage/steps';
+
 export type Vec3 = readonly [number, number, number];
 
 export interface CameraKey {
@@ -5,43 +7,69 @@ export interface CameraKey {
 	target: Vec3;
 }
 
-/** West to east: Minh → café (Joker) → courthouse (Phoenix) → town hall (Isabelle) → Reshiram's cliff. */
-export const CAMERA_KEYS: readonly CameraKey[] = [
-	{ position: [-86, 30, 128], target: [-106, -14, -24] },
-	{ position: [-34, 28, 64], target: [-28, 8, -10] },
-	{ position: [6, 28, 64], target: [8, 8, -12] },
-	{ position: [42, 30, 66], target: [40, 10, -12] },
-	{ position: [64, 48, 144], target: [76, 38, -10] },
-];
+export interface Framing {
+	/** The Cast Member this Step frames; camera-path.test.ts checks `anchor` matches where they stand. */
+	castId: string;
+	/** Host base x, a point roughly at body height, base z. */
+	anchor: Vec3;
+	/** Which side of the centred card the Host appears on in landscape. */
+	side: 'left' | 'right';
+	/** Camera distance from the Host, world units; bigger Hosts need more. */
+	distance: number;
+}
+
+/** West to east so the camera never backtracks: Minh → Phoenix → Joker → Isabelle → Reshiram on his cliff. */
+export const FRAMINGS: Record<StepId, Framing> = {
+	hello: { castId: 'minh', anchor: [-60, 7, 12], side: 'left', distance: 60 },
+	work: { castId: 'phoenix', anchor: [-34, 7, -8], side: 'right', distance: 60 },
+	projects: { castId: 'joker', anchor: [6, 7, -6], side: 'left', distance: 60 },
+	blog: { castId: 'isabelle', anchor: [40, 7, -6], side: 'right', distance: 60 },
+	contact: { castId: 'reshiram', anchor: [74, 32, -4], side: 'left', distance: 110 },
+};
+
+/**
+ * Landscape: the Host sits about a fifth of the way in from one edge, beside the centred card.
+ * Portrait: the Host sits in the band above the card.
+ */
+export const frame = ({ anchor: [x, y, z], side, distance: d }: Framing, layout: 'landscape' | 'portrait'): CameraKey => {
+	if (layout === 'portrait') return { position: [x, y + d * 0.3, z + d], target: [x, y - d * 0.22, z] };
+	const shift = side === 'left' ? d * 0.4 : -d * 0.4;
+	return { position: [x + shift, y + d * 0.35, z + d], target: [x + shift, y, z] };
+};
+
+export const SHOTS = Object.fromEntries(
+	STEPS.map(({ id }) => [id, { landscape: frame(FRAMINGS[id], 'landscape'), portrait: frame(FRAMINGS[id], 'portrait') }]),
+) as Record<StepId, { landscape: CameraKey; portrait: CameraKey }>;
+
+/** The shot for a Step at a viewport aspect (width / height): portrait below 1. */
+export const shotFor = (step: StepId, aspect: number): CameraKey =>
+	aspect < 1 ? SHOTS[step].portrait : SHOTS[step].landscape;
+
+export const GLIDE_SECONDS = 1.2;
 
 const clamp01 = (value: number) => (Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : 0);
+const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+const lerp3 = (a: Vec3, b: Vec3, e: number): Vec3 => [a[0] + (b[0] - a[0]) * e, a[1] + (b[1] - a[1]) * e, a[2] + (b[2] - a[2]) * e];
 
-const catmullRom = (p0: number, p1: number, p2: number, p3: number, t: number) =>
-	0.5 * (2 * p1 + (p2 - p0) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t * t + (3 * p1 - p0 - 3 * p2 + p3) * t * t * t);
-
-const sample = (points: readonly Vec3[], i: number, t: number): Vec3 => {
-	const at = (k: number) => points[Math.min(points.length - 1, Math.max(0, k))];
-	const [p0, p1, p2, p3] = [at(i - 1), at(i), at(i + 1), at(i + 2)];
-	return [0, 1, 2].map((axis) => catmullRom(p0[axis], p1[axis], p2[axis], p3[axis], t)) as unknown as Vec3;
+/** Camera between two shots at glide progress t (0–1, clamped), eased in and out. Returns the endpoints themselves at 0 and 1. */
+export const tweenShot = (from: CameraKey, to: CameraKey, t: number): CameraKey => {
+	const e = easeInOutCubic(clamp01(t));
+	if (e === 0) return from;
+	if (e === 1) return to;
+	return { position: lerp3(from.position, to.position, e), target: lerp3(from.target, to.target, e) };
 };
 
-/** Camera position and look-at target for scroll progress 0–1, along a Catmull-Rom curve through the keys. */
-export const cameraAt = (progress: number, keys: readonly CameraKey[] = CAMERA_KEYS): CameraKey => {
-	if (keys.length === 0) throw new Error('cameraAt needs at least one key');
-	if (keys.length === 1) return keys[0];
-	const p = clamp01(progress) * (keys.length - 1);
-	const i = Math.min(Math.floor(p), keys.length - 2);
-	const t = p - i;
-	if (t === 0) return keys[i];
-	if (i === keys.length - 2 && t === 1) return keys[i + 1];
-	return {
-		position: sample(keys.map((k) => k.position), i, t),
-		target: sample(keys.map((k) => k.target), i, t),
-	};
-};
+/** A camera move in progress. `start` is in seconds on the caller's clock. */
+export interface Glide {
+	from: CameraKey;
+	to: CameraKey;
+	start: number;
+}
 
-/** Fraction of the page scrolled, 0 when the page cannot scroll. */
-export const scrollProgress = (scrollY: number, scrollHeight: number, viewportHeight: number): number => {
-	const range = scrollHeight - viewportHeight;
-	return range > 0 ? clamp01(scrollY / range) : 0;
-};
+export const still = (shot: CameraKey): Glide => ({ from: shot, to: shot, start: 0 });
+
+export const glideAt = (glide: Glide, now: number): CameraKey =>
+	tweenShot(glide.from, glide.to, (now - glide.start) / GLIDE_SECONDS);
+
+/** A new glide to `to` that starts from wherever the camera is right now, so a change of mind never jumps. */
+export const retarget = (glide: Glide, to: CameraKey, now: number): Glide => ({ from: glideAt(glide, now), to, start: now });
