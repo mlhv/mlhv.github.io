@@ -16,7 +16,8 @@
     "sync-resume": "node scripts/sync-resume.ts"
   },
   "dependencies": {
-    "astro": "^7.2.6"
+    "astro": "^7.2.6",
+    "three": "^0.186.1"
   },
   "allowScripts": {
     "esbuild": true
@@ -24,6 +25,7 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
     "@types/node": "^24.19.2",
+    "@types/three": "^0.186.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.11"
   }
