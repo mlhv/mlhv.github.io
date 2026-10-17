@@ -29,11 +29,15 @@ export const phoenix: CastMember = {
 				[3, 9, 8, 6, 10, 8, 'W'],
 				[4, 6, 8, 4, 9, 8, 'R'],
 				[6, 8, 8, 6, 8, 8, 'Y'],
-				// signature spikes sweeping back and up
-				[1, 16, 3, 8, 16, 7, 'H'],
-				[2, 17, 2, 6, 17, 5, 'H'],
-				[2, 13, 1, 7, 15, 2, 'H'],
-				[3, 14, 0, 6, 15, 0, 'H'],
+				// signature spikes: a raised base plus three tall gapped prongs, swept back
+				[1, 16, 3, 8, 16, 8, 'H'],
+				[1, 17, 4, 2, 19, 8, 'H'],
+				[4, 17, 4, 5, 21, 8, 'H'],
+				[7, 17, 4, 8, 19, 8, 'H'],
+				[2, 18, 2, 7, 18, 3, 'H'],
+				[3, 19, 1, 6, 19, 2, 'H'],
+				// fringe over the forehead
+				[2, 15, 9, 7, 15, 9, 'H'],
 			],
 		),
 	},

@@ -19,6 +19,7 @@ export const isabelle: CastMember = {
 			{
 				K: '#f6e3a1', // fur
 				H: '#f6e3a1',
+				D: '#d9b85c', // darker ear fur
 				T: '#4f9d4f', // green vest
 				B: '#c94a3c', // skirt
 				S: '#f6e3a1',
@@ -30,8 +31,8 @@ export const isabelle: CastMember = {
 			[
 				...humanoidBoxes(),
 				// floppy ears
-				[0, 11, 5, 0, 14, 6, 'K'],
-				[9, 11, 5, 9, 14, 6, 'K'],
+				[0, 10, 4, 1, 14, 9, 'D'],
+				[8, 10, 4, 9, 14, 9, 'D'],
 				// top tuft with red tie
 				[4, 16, 5, 5, 17, 6, 'H'],
 				[4, 16, 5, 5, 16, 6, 'R'],
