@@ -56,7 +56,7 @@ The headshot source is `~/Documents/headshot.jpeg` (400×400, plain grey backdro
 
 ## Visual design
 
-- **Glass card:** dark translucent fill with `backdrop-filter: blur(12px)` and a 1.5px mint border at partial opacity, rounded with `--radius`, light text, and a mint kicker and accent. The same card is used in light and dark themes. Without `backdrop-filter` support, the fill becomes opaque enough on its own to keep contrast.
+- **Glass card:** dark translucent fill with `backdrop-filter: blur(12px)` and a 1.5px mint border at partial opacity, rounded with `--radius`, light text, and a mint kicker and accent. The same card is used in light and dark themes. The fill alone is opaque enough to keep AA contrast, so browsers without `backdrop-filter` need no fallback.
 - **New tokens** in the global stylesheet: `--color-glass`, `--color-on-glass`, `--color-glass-muted`, `--color-glass-accent`, `--color-glass-border`. Every pairing on the glass meets WCAG AA (4.5:1 body, 3:1 large text and UI). Measure against the glass composited over pure white, the worst case.
 - **Width:** `min(40rem, 100% - 2rem)`. On phones a card may be taller than the screen and scrolls normally.
 - **Hello card:** the photo sits on top, centred, with a mint ring, and the text is centred below.
@@ -86,7 +86,7 @@ export const activeStep = (rects: readonly StepRect[], viewportHeight: number): 
   - dispatches `new CustomEvent('stage:step', { detail: { index, id } })` on `document`
 - On start, it sets `document.documentElement.dataset.stage = ''` and fires the initial step immediately. With a URL hash, the browser has already scrolled to that section.
 - It is torn down on `astro:before-swap`.
-- `focusin` inside a Step scrolls nothing extra. The browser already scrolls focused elements into view, which updates the active step.
+- `focusin` inside a Step makes that Step active immediately. The browser scrolls a focused element into view, but not necessarily to the middle of the screen, so without this a keyboard user could focus a link in a card that is still faded out.
 
 ### Reveal (CSS)
 
