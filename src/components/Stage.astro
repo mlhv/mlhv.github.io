@@ -187,8 +187,19 @@ import { STEPS } from "../stage/steps";
 			grid-auto-flow: column;
 		}
 
+		/* Visually hidden, not display:none, so each dot link keeps its accessible name. */
 		.label {
-			display: none;
+			position: absolute;
+			top: auto;
+			right: auto;
+			width: 1px;
+			height: 1px;
+			padding: 0;
+			overflow: hidden;
+			white-space: nowrap;
+			clip-path: inset(50%);
+			transform: none;
+			transition: none;
 		}
 	}
 
