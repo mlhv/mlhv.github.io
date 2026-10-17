@@ -30,7 +30,7 @@ Decisions made in the brainstorm:
 
 ## Domain language changes (`CONTEXT.md`)
 
-Remove **Desktop** and **Window**. Add:
+Remove **Desktop**. Keep **Window** (still used on the Projects and Resume pages), dropping "on the Desktop" from its definition. Add:
 
 - **Stage** — the homepage as a sequence of Steps revealed one at a time over the World. _Avoid_: slideshow, carousel.
 - **Step** — one full-height section of the Stage (Hello, Work, Projects, Blog, Contact), with one glass card. _Avoid_: slide, panel, page.
@@ -82,7 +82,7 @@ export const activeStep = (rects: readonly StepRect[], viewportHeight: number): 
 - When the active step changes, it:
   - sets `data-active` on the active `<section>` and removes it from the others
   - sets `aria-current="step"` on the matching rail link
-  - calls `history.replaceState(null, '', '#' + id)`; Hello clears the hash
+  - calls `history.replaceState(history.state, '', '#' + id)`, keeping `history.state` because ClientRouter stores its navigation state there; Hello clears the hash
   - dispatches `new CustomEvent('stage:step', { detail: { index, id } })` on `document`
 - On start, it sets `document.documentElement.dataset.stage = ''` and fires the initial step immediately. With a URL hash, the browser has already scrolled to that section.
 - It is torn down on `astro:before-swap`.
@@ -129,7 +129,7 @@ export const activeStep = (rects: readonly StepRect[], viewportHeight: number): 
 
 ## Removed
 
-- `src/components/Window.astro` (homepage-only).
+- The homepage's use of `Window` (the component stays: `/projects/` and `/resume/` use it).
 - The `.desktop` grid, `.intro`, `.runway`, and `runway-hint` in `index.astro`.
 - `data-world="motion"` runway styling. `data-world` itself is kept for the credit line and anything else that checks it.
 
