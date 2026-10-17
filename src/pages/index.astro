@@ -1,144 +1,239 @@
 ---
+import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
-import Layout from "../layouts/Layout.astro";
-import Window from "../components/Window.astro";
+import headshot from "../assets/headshot.jpeg";
+import ProjectLogo from "../components/ProjectLogo.astro";
+import Stage from "../components/Stage.astro";
+import StepCard from "../components/StepCard.astro";
 import World from "../components/World.astro";
+import Layout from "../layouts/Layout.astro";
 import { getVisiblePosts } from "../lib/content";
 import { sortProjects } from "../lib/projects";
 import { resume } from "../lib/resume-data";
 
-const projects = sortProjects(await getCollection("projects"));
-const posts = await getVisiblePosts();
-const [latestRole] = resume.experience;
+const projects = sortProjects(await getCollection("projects")).slice(0, 3);
+const posts = (await getVisiblePosts()).slice(0, 2);
+const formatDate = new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeZone: "UTC" });
 ---
 
 <Layout title="Home">
 	<World />
-	<section class="intro" data-world-solid>
-		<h1 class="page-title">{resume.name}</h1>
+	<Stage />
+
+	<StepCard index={0} center>
+		<Image src={headshot} alt={resume.name} width={200} height={200} loading="eager" class="photo" />
+		<h1 class="name">{resume.name}</h1>
 		<p class="tagline">
 			Software engineering student at Drexel University building backend, infrastructure, and applied-AI systems.
-			Looking for Summer 2027 internships.
 		</p>
-	</section>
+		<p class="seeking">Looking for Summer 2027 internships.</p>
+		<div class="chips">
+			<a href="#work">Work ↓</a>
+			<a href="#projects">Projects ↓</a>
+			<a href="#contact">Contact ↓</a>
+		</div>
+	</StepCard>
 
-	<div class="desktop">
-		<div class="slot slot-projects">
-			<Window title="Projects" href="/projects/">
-				<p class="muted">{projects.length} projects &amp; open-source contributions</p>
-				<ul class="preview">
-					{projects.slice(0, 3).map((p) => <li>{p.data.title}</li>)}
-				</ul>
-				<p class="open">Open →</p>
-			</Window>
-		</div>
-		<div class="slot slot-work">
-			<Window title="Work Experience" href="/work/" tone="secondary">
-				{
-					latestRole && (
-						<p>
-							<strong>{latestRole.role}</strong>
-							<br />
-							{latestRole.company} · {latestRole.startDate} – {latestRole.endDate || "Present"}
+	<StepCard index={1}>
+		<h2>Where I've worked</h2>
+		<ol class="entries">
+			{
+				resume.experience.map((job) => (
+					<li>
+						<h3>
+							{job.role} · {job.company}
+						</h3>
+						<p class="when">
+							{job.startDate} – {job.endDate || "Present"}
 						</p>
-					)
-				}
-				<p class="muted">{resume.experience.length} roles</p>
-			</Window>
+						{job.highlights[0] && <p>{job.highlights[0]}</p>}
+					</li>
+				))
+			}
+		</ol>
+		<a class="more" href="/work/">See all experience →</a>
+	</StepCard>
+
+	<StepCard index={2}>
+		<h2>Things I've built</h2>
+		<ul class="entries">
+			{
+				projects.map((project) => (
+					<li class="project">
+						<ProjectLogo title={project.data.title} logo={project.data.logo} badge={project.data.monogram} size={48} />
+						<div>
+							<h3>
+								<a href={`/projects/${project.id}/`}>{project.data.title}</a>
+							</h3>
+							<p>{project.data.description}</p>
+							<ul class="tech">
+								{project.data.techStack.slice(0, 4).map((tech) => (
+									<li>{tech}</li>
+								))}
+							</ul>
+						</div>
+					</li>
+				))
+			}
+		</ul>
+		<a class="more" href="/projects/">All projects →</a>
+	</StepCard>
+
+	<StepCard index={3}>
+		<h2>Writing</h2>
+		{
+			posts.length === 0 ? (
+				<p class="entries">Posts coming soon.</p>
+			) : (
+				<ul class="entries">
+					{posts.map((post) => (
+						<li>
+							<h3>
+								<a href={`/blog/${post.id}/`}>{post.data.title}</a>
+							</h3>
+							<p class="when">
+								<time datetime={post.data.date.toISOString()}>{formatDate.format(post.data.date)}</time>
+							</p>
+							<p>{post.data.description}</p>
+						</li>
+					))}
+				</ul>
+			)
+		}
+		<a class="more" href="/blog/">All posts →</a>
+	</StepCard>
+
+	<StepCard index={4}>
+		<h2>Say hello</h2>
+		<p>The fastest way to reach me is email.</p>
+		<div class="buttons">
+			<a class="button email" href={`mailto:${resume.contact.email}`}>{resume.contact.email}</a>
+			<a class="button" href={resume.contact.linkedin}>LinkedIn</a>
+			<a class="button" href={resume.contact.github}>GitHub</a>
+			<a class="button" href="/resume/">Résumé</a>
 		</div>
-		<div class="slot slot-blog">
-			<Window title="Blog" href="/blog/">
-				<p>{posts.length > 0 ? `${posts.length} post${posts.length === 1 ? "" : "s"}` : "Posts coming soon."}</p>
-			</Window>
-		</div>
-		<div class="slot slot-contact">
-			<Window title="Contact" href="/contact/" tone="secondary">
-				<p class="email">{resume.contact.email}</p>
-				<p class="muted">LinkedIn · GitHub · Résumé</p>
-			</Window>
-		</div>
-	</div>
-	<div class="runway" aria-hidden="true">
-		<p class="runway-hint" data-world-solid>Keep scrolling to explore the town ↓</p>
-	</div>
-	<p class="credit" data-world-solid>
-		Characters © Nintendo / Game Freak / The Pokémon Company / Atlus / Capcom. Fan art.
-	</p>
+		<p slot="after" class="credit" data-world-solid>
+			Characters © Nintendo / Game Freak / The Pokémon Company / Atlus / Capcom. Fan art.
+		</p>
+	</StepCard>
 </Layout>
 
 <style>
-	.intro {
-		width: fit-content;
-		max-width: 46rem;
-		margin-bottom: 2rem;
-		padding: 1.25rem 1.5rem 0.5rem;
-		background: var(--color-surface);
-		border: 3px solid var(--color-foreground);
-		border-radius: var(--radius);
-		box-shadow: 6px 6px 0 var(--color-foreground);
+	.photo {
+		display: block;
+		width: 200px;
+		height: 200px;
+		margin: 0.5rem auto 0;
+		object-fit: cover;
+		border: 4px solid var(--color-glass-accent);
+		border-radius: 50%;
+	}
+
+	.name {
+		margin: 1rem 0 0.25rem;
+		font-size: clamp(2.2rem, 7vw, 3.2rem);
 	}
 
 	.tagline {
+		margin: 0 auto;
 		font-size: 1.15rem;
 	}
 
-	/* The "desktop": the World shows through; windows placed on a 12-column grid. */
-	.desktop {
-		display: grid;
-		grid-template-columns: 1fr;
-		gap: 1.5rem;
-		padding: 1.25rem;
-	}
-
-	.slot p {
-		margin: 0 0 0.5rem;
-	}
-
-	.preview {
-		margin: 0 0 0.5rem;
-		padding-left: 1.1rem;
-	}
-
-	.open {
+	.seeking {
+		margin: 0.5rem auto 1.25rem;
 		font-family: var(--font-heading);
-		font-size: 0.95rem;
 		font-weight: 600;
-		color: var(--color-secondary);
+		color: var(--color-glass-accent);
+	}
+
+	.chips,
+	.buttons {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.6rem;
+	}
+
+	.chips {
+		justify-content: center;
+	}
+
+	.chips a,
+	.button {
+		padding: 0.4rem 1rem;
+		font-family: var(--font-heading);
+		font-weight: 600;
+		color: var(--color-on-glass);
+		text-decoration: none;
+		border: 2px solid var(--color-glass-accent);
+		border-radius: 999px;
+	}
+
+	.chips a:hover,
+	.button:hover {
+		color: #0f1a14; /* ink on mint: ≈13:1 */
+		background: var(--color-glass-accent);
 	}
 
 	.email {
 		overflow-wrap: anywhere;
 	}
 
-	/* Extra scroll room so the camera can travel to Reshiram's cliff; only while the World is moving. */
-	.runway,
-	.credit {
-		display: none;
+	.entries {
+		display: grid;
+		gap: 1.25rem;
+		margin: 0 0 1.5rem;
+		padding: 0;
+		list-style: none;
 	}
 
-	:global(:root[data-world="motion"]) .runway {
-		display: block;
-		height: 90vh;
+	.entries h3 {
+		margin: 0;
+		font-size: 1.1rem;
 	}
 
-	:global(:root[data-world]) .credit {
-		display: block;
+	.entries p {
+		margin: 0;
 	}
 
-	.runway-hint {
-		width: fit-content;
-		margin: 3rem auto 0;
-		padding: 0.4rem 1rem;
-		font-family: var(--font-heading);
-		background: var(--color-surface);
-		border: 2px solid var(--color-foreground);
+	.entries .when {
+		margin: 0.1rem 0 0.35rem;
+		font-size: 0.95rem;
+		color: var(--color-glass-muted);
+	}
+
+	.project {
+		display: grid;
+		grid-template-columns: 48px 1fr;
+		gap: 1rem;
+		align-items: start;
+	}
+
+	.tech {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.35rem;
+		margin: 0.5rem 0 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.tech li {
+		padding: 0.05rem 0.55rem;
+		font-size: 0.8rem;
+		border: 1.5px solid var(--color-glass-border);
 		border-radius: 999px;
 	}
 
+	.more {
+		font-family: var(--font-heading);
+		font-weight: 600;
+	}
+
 	.credit {
+		display: none;
 		width: fit-content;
 		max-width: none;
-		margin: 1.5rem auto 0;
+		margin: 0;
 		padding: 0.25rem 0.75rem;
 		font-size: 0.8rem;
 		color: var(--color-muted);
@@ -146,37 +241,7 @@ const [latestRole] = resume.experience;
 		border-radius: 999px;
 	}
 
-	/* Below 768px the windows stack in one column (the grid default above). */
-	@media (min-width: 768px) {
-		:global(:root[data-world="motion"]) .runway {
-			height: 160vh;
-		}
-
-		.desktop {
-			grid-template-columns: repeat(12, 1fr);
-			gap: 2rem;
-			padding: 2.5rem;
-		}
-
-		.slot-projects {
-			grid-column: 1 / span 7;
-			grid-row: 1 / span 2;
-		}
-
-		.slot-work {
-			grid-column: 8 / span 5;
-			grid-row: 1;
-			margin-top: 1.5rem;
-		}
-
-		.slot-blog {
-			grid-column: 8 / span 4;
-			grid-row: 2;
-		}
-
-		.slot-contact {
-			grid-column: 3 / span 6;
-			grid-row: 3;
-		}
+	:global(:root[data-world]) .credit {
+		display: block;
 	}
 </style>

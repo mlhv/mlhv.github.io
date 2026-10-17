@@ -1,0 +1,205 @@
+---
+// The homepage Stage controller and its progress rail.
+// Marks the Step at the middle of the screen active, mirrors it in the rail and the URL hash,
+// and announces it with a `stage:step` event (World.astro moves the camera on it).
+import { STEPS } from "../stage/steps";
+---
+
+<nav class="rail" aria-label="Sections" data-rail>
+	<span class="bar" aria-hidden="true"></span>
+	<ol>
+		{
+			STEPS.map(({ id, label }) => (
+				<li>
+					<a href={`#${id}`}>
+						<span class="label">{label}</span>
+					</a>
+				</li>
+			))
+		}
+	</ol>
+</nav>
+
+<script>
+	import { activeStep } from "../stage/active-step";
+
+	let teardown: (() => void) | null = null;
+
+	document.addEventListener("astro:page-load", () => {
+		const sections = [...document.querySelectorAll<HTMLElement>("[data-step]")];
+		const rail = document.querySelector<HTMLElement>("[data-rail]");
+		if (sections.length === 0 || !rail) return;
+		const links = [...rail.querySelectorAll<HTMLAnchorElement>("a")];
+		const root = document.documentElement;
+		let current = -1;
+		let frame = 0;
+
+		const setActive = (index: number) => {
+			if (index < 0 || index === current) return;
+			current = index;
+			const { id } = sections[index];
+			sections.forEach((section, i) => section.toggleAttribute("data-active", i === index));
+			for (const link of links) {
+				if (link.hash === `#${id}`) link.setAttribute("aria-current", "step");
+				else link.removeAttribute("aria-current");
+			}
+			rail.style.setProperty("--stage-progress", String((index + 1) / sections.length));
+			// Keep history.state: ClientRouter stores its navigation state there.
+			history.replaceState(history.state, "", index === 0 ? location.pathname + location.search : `#${id}`);
+			document.dispatchEvent(new CustomEvent("stage:step", { detail: { index, id } }));
+		};
+
+		const update = () => {
+			frame = 0;
+			setActive(activeStep(sections.map((section) => section.getBoundingClientRect()), window.innerHeight));
+		};
+		const schedule = () => {
+			if (frame === 0) frame = requestAnimationFrame(update);
+		};
+		// The browser scrolls a focused element into view but not to the middle, so focus decides the Step directly.
+		const onFocus = (event: FocusEvent) => {
+			const index = sections.findIndex((section) => section.contains(event.target as Node));
+			if (index >= 0) setActive(index);
+		};
+
+		root.dataset.stage = "";
+		update();
+		window.addEventListener("scroll", schedule, { passive: true });
+		window.addEventListener("resize", schedule);
+		document.addEventListener("focusin", onFocus);
+
+		teardown = () => {
+			cancelAnimationFrame(frame);
+			window.removeEventListener("scroll", schedule);
+			window.removeEventListener("resize", schedule);
+			document.removeEventListener("focusin", onFocus);
+			delete root.dataset.stage;
+		};
+	});
+
+	document.addEventListener("astro:before-swap", () => {
+		teardown?.();
+		teardown = null;
+	});
+</script>
+
+<style>
+	.rail {
+		position: fixed;
+		z-index: 10;
+		top: 50%;
+		right: 1rem;
+		transform: translateY(-50%);
+	}
+
+	ol {
+		display: grid;
+		gap: 0.25rem;
+		margin: 0;
+		padding: 0.4rem;
+		list-style: none;
+		background: var(--color-glass);
+		border: 1.5px solid var(--color-glass-border);
+		border-radius: 999px;
+	}
+
+	/* 24px hit area (WCAG 2.5.8) around a 12px dot. */
+	a {
+		position: relative;
+		display: grid;
+		place-items: center;
+		width: 24px;
+		height: 24px;
+		border-radius: 50%;
+	}
+
+	a::before {
+		content: "";
+		width: 12px;
+		height: 12px;
+		border: 2px solid var(--color-glass-accent);
+		border-radius: 50%;
+	}
+
+	a[aria-current="step"]::before {
+		background: var(--color-glass-accent);
+	}
+
+	a:focus-visible {
+		outline-color: var(--color-glass-accent);
+	}
+
+	.label {
+		position: absolute;
+		top: 50%;
+		right: calc(100% + 0.6rem);
+		padding: 0.15rem 0.7rem;
+		white-space: nowrap;
+		font-size: 0.85rem;
+		color: var(--color-on-glass);
+		background: var(--color-glass);
+		border-radius: 999px;
+		transform: translateY(-50%);
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 150ms;
+	}
+
+	a:hover .label,
+	a:focus-visible .label {
+		opacity: 1;
+	}
+
+	.bar {
+		display: none;
+	}
+
+	/* Phones: a thin progress bar along the top; the dots appear only while one has keyboard focus. */
+	@media (max-width: 767px) {
+		.rail {
+			top: 0;
+			right: 0;
+			left: 0;
+			transform: none;
+		}
+
+		.bar {
+			display: block;
+			height: 4px;
+			background: var(--color-glass-accent);
+			transform: scaleX(var(--stage-progress, 0));
+			transform-origin: left;
+			transition: transform 300ms ease-out;
+		}
+
+		.rail:not(:focus-within) ol {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			overflow: hidden;
+			clip-path: inset(50%);
+		}
+
+		.rail:focus-within ol {
+			position: absolute;
+			top: 0.75rem;
+			right: 0.75rem;
+			grid-auto-flow: column;
+		}
+
+		.label {
+			display: none;
+		}
+	}
+
+	:global(:root:not([data-stage])) .bar {
+		display: none;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.bar,
+		.label {
+			transition: none;
+		}
+	}
+</style>

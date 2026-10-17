@@ -1,0 +1,106 @@
+---
+// One Step of the homepage Stage: a full-height section holding one glass card.
+// The card fades in only once the Stage script has started (:root[data-stage]); without JS every card is simply visible.
+import { STEPS, kicker } from "../stage/steps";
+
+interface Props {
+	index: number;
+	/** Centre the card's text (the Hello card). */
+	center?: boolean;
+}
+
+const { index, center = false } = Astro.props;
+const { id } = STEPS[index];
+---
+
+<section class="step" id={id} data-step>
+	<div class:list={["card", { center }]} data-world-solid>
+		<p class="kicker">{kicker(index)}</p>
+		<slot />
+	</div>
+	<slot name="after" />
+</section>
+
+<style>
+	.step {
+		display: grid;
+		place-items: center;
+		align-content: center;
+		gap: 1rem;
+		min-height: 100svh;
+		padding-block: 2rem;
+	}
+
+	.card {
+		width: min(40rem, 100%);
+		padding: clamp(1.25rem, 4vw, 2rem);
+		color: var(--color-on-glass);
+		background: var(--color-glass);
+		-webkit-backdrop-filter: blur(12px);
+		backdrop-filter: blur(12px);
+		border: 1.5px solid var(--color-glass-border);
+		border-radius: var(--radius);
+		box-shadow: 0 12px 40px rgb(0 0 0 / 0.25);
+	}
+
+	.center {
+		text-align: center;
+	}
+
+	.kicker {
+		margin: 0 0 0.5rem;
+		max-width: none;
+		font-family: var(--font-heading);
+		font-size: 0.8rem;
+		font-weight: 600;
+		letter-spacing: 0.15em;
+		text-transform: uppercase;
+		color: var(--color-glass-accent);
+	}
+
+	.card :global(h2) {
+		margin: 0 0 1.25rem;
+		font-size: clamp(1.6rem, 5vw, 2.2rem);
+	}
+
+	.card :global(a) {
+		color: var(--color-glass-accent);
+	}
+
+	.card :global(:focus-visible) {
+		outline-color: var(--color-glass-accent);
+	}
+
+	/* Reveal: only the active Step's card shows. Faded cards stay in the accessibility tree. */
+	:global(:root[data-stage]) .card {
+		transition:
+			opacity 500ms ease-out,
+			transform 500ms ease-out;
+	}
+
+	:global(:root[data-stage]) .step:not([data-active]) .card {
+		opacity: 0;
+		transform: translateY(2rem);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		:global(:root[data-stage]) .card {
+			transition: none;
+		}
+
+		:global(:root[data-stage]) .step:not([data-active]) .card {
+			opacity: 0.15;
+			transform: none;
+		}
+	}
+
+	@media (min-width: 768px) and (min-height: 600px) and (prefers-reduced-motion: no-preference) {
+		:global(:root[data-stage]) {
+			scroll-snap-type: y proximity;
+		}
+
+		.step {
+			scroll-snap-align: center;
+		}
+	}
+</style>
