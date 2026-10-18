@@ -99,8 +99,10 @@ const { id } = STEPS[index];
 	}
 
 	@media (min-width: 768px) and (min-height: 600px) and (prefers-reduced-motion: no-preference) {
+		/* Mandatory: a scroll that stops between two Steps always settles on whichever one fills more of the screen.
+		   A Step taller than the screen still scrolls freely inside (browsers don't snap within an oversized snap area). */
 		:global(:root[data-stage]) {
-			scroll-snap-type: y proximity;
+			scroll-snap-type: y mandatory;
 		}
 
 		.step {
