@@ -10,10 +10,13 @@ import Layout from "../layouts/Layout.astro";
 import { getVisiblePosts } from "../lib/content";
 import { sortProjects } from "../lib/projects";
 import { resume } from "../lib/resume-data";
+import { cast } from "../world/characters";
+import { creditLines } from "../world/credits";
 
 const projects = sortProjects(await getCollection("projects")).slice(0, 3);
 const posts = (await getVisiblePosts()).slice(0, 2);
 const formatDate = new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeZone: "UTC" });
+const credits = creditLines(cast);
 ---
 
 <Layout title="Home">
@@ -114,6 +117,19 @@ const formatDate = new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeZ
 		</div>
 		<p slot="after" class="credit" data-world-solid>
 			Characters © Nintendo / Game Freak / The Pokémon Company / Atlus / Capcom. Fan art.
+			{
+				credits.length > 0 && (
+					<>
+						{" "}Models:{" "}
+						{credits.map((credit, index) => (
+							<>
+								{index > 0 && " · "}
+								<a href={credit.url}>{credit.title}</a> by {credit.author} ({credit.licence})
+							</>
+						))}
+					</>
+				)
+			}
 		</p>
 	</StepCard>
 </Layout>
@@ -239,6 +255,10 @@ const formatDate = new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeZ
 		color: var(--color-muted);
 		background: var(--color-surface);
 		border-radius: 999px;
+	}
+
+	.credit a {
+		color: inherit;
 	}
 
 	:global(:root[data-world]) .credit {
