@@ -102,5 +102,10 @@ const { id } = STEPS[index];
 		.step {
 			scroll-snap-align: center;
 		}
+
+		/* Without its own snap point the top of the page snaps back to Hello, so the nav and theme toggle could never be scrolled to. */
+		:global(:root[data-stage] .site-header) {
+			scroll-snap-align: start;
+		}
 	}
 </style>
