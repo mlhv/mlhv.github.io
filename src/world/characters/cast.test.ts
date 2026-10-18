@@ -32,6 +32,7 @@ describe('cast', () => {
 		expect(member.source.url).toMatch(/^\/models\/[a-z0-9-]+\.glb$/);
 		expect(existsSync(publicFile(member.source.url)), `${member.source.url} is missing`).toBe(true);
 		expect(member.source.clips.idle.trim()).not.toBe('');
+		expect(member.source.clips.talk).not.toBe(member.source.clips.idle);
 		for (const field of ['title', 'author', 'licence'] as const) expect(member.credit[field].trim()).not.toBe('');
 		expect(member.credit.url).toMatch(/^https:\/\//);
 	});

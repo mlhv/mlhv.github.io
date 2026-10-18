@@ -29,6 +29,7 @@ describe('parseAddModelArgs', () => {
 		[['a.glb', 'Joker!', '--idle', 'idle'], /id/],
 		[['a.glb', 'joker', '--idle'], /--idle needs a value/],
 		[['a.glb', 'joker', '--idle', 'idle', '--speed', '2'], /unknown flag --speed/],
+		[['a.glb', 'joker', '--idle', 'idle', '--talk', 'idle'], /different clip/],
 		[['a.glb', 'joker', 'extra', '--idle', 'idle'], /usage/i],
 	])('rejects %j', (argv, message) => {
 		expect(() => parseAddModelArgs(argv)).toThrow(message);

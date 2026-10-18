@@ -33,6 +33,7 @@ export const parseAddModelArgs = (argv: readonly string[]): AddModelArgs => {
 	const [input, id] = positional;
 	if (!/^[a-z][a-z0-9-]*$/.test(id)) throw new Error(`id "${id}" must be lowercase letters, digits and dashes (the Cast Member's id)`);
 	if (!flags.idle) throw new Error(`--idle <clip> is required\n${USAGE}`);
+	if (flags.talk === flags.idle) throw new Error(`--talk must name a different clip from --idle\n${USAGE}`);
 	return { input, id, idle: flags.idle, talk: flags.talk ?? null };
 };
 

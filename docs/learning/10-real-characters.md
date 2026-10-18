@@ -16,7 +16,7 @@ Each Host has a fixed `Group`, its slot, which the render loop moves and rotates
 Community models arrive at any scale. The Khronos Fox is about 100 units tall, and Mixamo exports are often 0.017. Their origins aren't always at the feet. `fitToHeight` takes the model's bounding box and returns a scale and an offset that make it exactly the Host's `height`, with its feet on the ground and centred on its spot. It's pure, so the maths is unit-tested without WebGL.
 
 ### Animation mixers and cross-fades
-Each model gets an `AnimationMixer`, which the render loop advances by the frame time (capped at 0.1 s so a hidden tab doesn't jump). Talking is `idle.crossFadeTo(talk)` over 0.25 s, then back again when the one-shot talk clip finishes. One trap: three.js disables an action once it has faded to 0, so `fadeTo` re-enables the target first. Otherwise the Host freezes in its bind pose (the T-pose).
+Each model gets an `AnimationMixer`, which the render loop advances by the frame time (capped at 0.1 s so a hidden tab doesn't jump). Talking is `idle.crossFadeTo(talk)` over 0.25 s, then back again when the one-shot talk clip finishes. One trap: three.js disables an action once it has faded to 0, so `fadeTo` re-enables the target first. Otherwise the Host freezes in its bind pose (the T-pose). Clicking again while the talk clip is still playing just restarts it with `reset()` instead of cross-fading: idle has already faded out by then, so a fresh fade-in would start talk from weight 0 and briefly show the T-pose.
 
 ### Reduced motion with real animation
 With reduced motion the mixers never advance. Each model is set to frame 0 of its idle clip (`mixer.update(0)`) and rendered once when it arrives, so it stands naturally without moving.
