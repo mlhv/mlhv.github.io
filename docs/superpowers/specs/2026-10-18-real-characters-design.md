@@ -239,7 +239,7 @@ Mixamo's rig replaces any original rig, so physics bones such as hair or coat ta
 | **Phoenix Wright** | Sketchfab / Fab: "Phoenix Wright", "Ace Attorney", "Naruhodo" | Mixamo | Look for the blue suit and spiky hair, standing. For `talk`, the "Pointing" Mixamo clip suits him ("Objection!") better than a wave. |
 | **Joker** | Sketchfab / Fab: "Joker Persona 5", "P5 Joker", "Ren Amamiya" | Mixamo | Prefer the Phantom Thief coat outfit. The long coat may deform oddly with Mixamo's rig. Check the preview, and if the coat tears through the legs, choose another model or a shorter coat. |
 | **Isabelle** | Sketchfab / Fab: "Isabelle Animal Crossing", "Shizue" (her Japanese name) | Tick the **Animated** filter first. Otherwise try Mixamo. | She's bipedal but has a huge head and short limbs. Mixamo can sometimes rig her if the markers are placed carefully. Judge the preview. If neither works, she stays a Stand-in. |
-| **Reshiram** | Sketchfab / Fab: "Reshiram", with the **Animated** filter | Must ship with clips | A dragon, so Mixamo can't rig her. Choose a model with an idle or flying loop and, ideally, a roar for `talk`. If none exists, she stays a Stand-in. Optional stretch goal: hand-animate a simple wing-flap loop in Blender. |
+| **Reshiram** | Sketchfab / Fab: "Reshiram", with the **Animated** filter | Must ship with clips | A dragon, so Mixamo can't rig it. Choose a model with an idle or flying loop and, ideally, a roar for `talk`. If none exists, Reshiram stays a Stand-in. Optional stretch goal: hand-animate a simple wing-flap loop in Blender. |
 
 ### After the GLB is ready
 
