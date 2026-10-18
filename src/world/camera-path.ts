@@ -22,9 +22,9 @@ export interface Framing {
 export const FRAMINGS: Record<StepId, Framing> = {
 	hello: { castId: 'minh', anchor: [-60, 7, 12], side: 'left', distance: 60 },
 	work: { castId: 'phoenix', anchor: [-34, 7, -8], side: 'right', distance: 60 },
-	projects: { castId: 'joker', anchor: [6, 7, -6], side: 'left', distance: 60 },
+	projects: { castId: 'joker', anchor: [6, 7, -6], side: 'left', distance: 48 },
 	blog: { castId: 'isabelle', anchor: [40, 7, -6], side: 'right', distance: 60 },
-	contact: { castId: 'reshiram', anchor: [74, 32, -4], side: 'left', distance: 110 },
+	contact: { castId: 'reshiram', anchor: [74, 40, -4], side: 'left', distance: 160 },
 };
 
 /**
