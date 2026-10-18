@@ -176,11 +176,82 @@ export const motionPose = (motion: Motion, t: number, seed: number): Pose;
 
 The script never edits TypeScript. Originals stay outside the repo (the owner keeps them for re-runs).
 
-Preparing a model before the script (owner, manual, documented in the learning note):
+See **Sourcing and preparing models** below for the manual steps that come before the script.
 
-- **Minh:** VRoid Studio avatar → export VRM → import into Blender (VRM add-on) → apply Mixamo idle and wave clips → export GLB.
-- **Joker and Phoenix:** a licensed rigged community model → Mixamo idle and wave → Blender → GLB, if the model doesn't already ship with clips.
-- **Isabelle and Reshiram:** need a licensed community model that already includes an idle clip (Mixamo only rigs humanoids). If none exists, the Host stays a Stand-in.
+## Sourcing and preparing models
+
+This is the owner's manual work, done once per Host after the pipeline ships. The steps are repeated in `docs/learning/10-real-characters.md`. Platform status checked on 2026-10-18:
+- Sketchfab still offers free Creative Commons downloads, but Epic is moving content to Fab, and Sketchfab was sold to KitBash in August 2026. Check both sites.
+- Mixamo is still free with an Adobe account. It's in maintenance mode and only handles human-shaped characters.
+
+### Where to look
+
+1. **Sketchfab** (sketchfab.com). Search the character's name, then filter by **Downloadable** and by licence. **Animated** and **Rigged** filters, where offered, narrow it to models that already move.
+2. **Fab** (fab.com, needs an Epic account). Same searches, filtered to **Free** with a Creative Commons licence.
+3. **Mixamo** (mixamo.com) supplies the idle and wave clips for human-shaped Hosts, and can rig a human-shaped model that has no rig.
+
+### Which models are acceptable
+
+- **Licence:** CC0, CC BY or CC BY-SA. Reject the others:
+  - **NC** (non-commercial): ambiguous for a job-hunting portfolio.
+  - **ND** (no derivatives): optimising the model and adding clips makes a derivative.
+  - **Standard / Personal** (Fab): doesn't allow redistributing the file, and the committed `.glb` is public on GitHub.
+  - For CC BY-SA, set `credit.licence` to `'CC BY-SA 4.0'` (or the stated version).
+- **No game rips.** Skip anything described as "ripped", "extracted", "from the game" or "datamined", or that credits the game studio as the source. Many rips are re-uploaded with a CC licence the uploader had no right to give. Choose original fan-made models. The uploader's licence covers their modelling work only. The characters themselves remain the rights holders' property, which the "Fan art" copyright note covers.
+- **Size:** about 50k triangles or fewer (Sketchfab shows the count). Larger models rarely fit 1.5 MB even after compression.
+- **Shape:** a single character, standing, ideally in a T-pose or A-pose if it isn't rigged. Not a scene or a diorama.
+- **Before downloading:** record the title, author, licence and page URL straight away. These become the `credit`.
+
+Download the **glTF/GLB** format when it's offered (Sketchfab's "Autoconverted format (glTF)"). Otherwise take FBX.
+
+### Common Blender steps (all Hosts)
+
+- Use Blender 4.2 LTS or newer. Import with File → Import → glTF 2.0 or FBX.
+- Delete anything that isn't the character: ground planes, lights, cameras, stands.
+- Apply the scale so the character is roughly upright and facing −Y in Blender (+Z in three.js, towards the camera). The loader handles size, so exact scale doesn't matter.
+- Name the two actions in the Action Editor `idle` and `talk`, and pass those names to `add-model`. Push both to NLA tracks so the exporter includes both.
+- Export with File → Export → glTF 2.0:
+  - format **glTF Binary (.glb)**
+  - Include: **Selected Objects** (the armature and meshes)
+  - Animation: **Actions** mode
+- Before running the script, drop the `.glb` onto https://gltf-viewer.donmccurdy.com/ and check that both clips play and the textures show.
+
+### Mixamo clips (Minh, Phoenix, Joker; possibly Isabelle)
+
+1. Export the character from Blender as **FBX** with mesh only, no armature. If the model is unrigged, its original FBX also works.
+2. Upload it to Mixamo. Place the auto-rigger markers (chin, wrists, elbows, knees, groin) and check the preview. Skip this step if Mixamo recognises an existing compatible rig.
+3. Pick an idle, such as "Breathing Idle" or "Happy Idle", and download it as **FBX, With Skin, 30 fps**.
+4. Pick a wave ("Waving" or "Standing Greeting") and download it as **FBX, Without Skin**, with **In Place** ticked.
+5. In Blender:
+   - import the idle FBX
+   - import the wave FBX and move its action onto the first armature
+   - delete the second armature
+   - rename the actions `idle` and `talk`
+   - export the GLB as above
+
+Mixamo's rig replaces any original rig, so physics bones such as hair or coat tails go stiff. That's acceptable.
+
+### Per Host
+
+| Host | Where to search | Prep path | Notes |
+|---|---|---|---|
+| **Minh** | none: build it in **VRoid Studio** (free, Windows/macOS) | VRoid → Mixamo → Blender | Make a stylised avatar from reference photos. Export as VRM with the export options **reduce polygons** and **texture atlas resolution 1024** to keep it small. Import into Blender with the **VRM Add-on for Blender** (extensions.blender.org/add-ons/vrm), then follow the Mixamo steps. Credit: title "Minh avatar", author "Minh Le", licence "All rights reserved" (it's your own work). |
+| **Phoenix Wright** | Sketchfab / Fab: "Phoenix Wright", "Ace Attorney", "Naruhodo" | Mixamo | Look for the blue suit and spiky hair, standing. For `talk`, the "Pointing" Mixamo clip suits him ("Objection!") better than a wave. |
+| **Joker** | Sketchfab / Fab: "Joker Persona 5", "P5 Joker", "Ren Amamiya" | Mixamo | Prefer the Phantom Thief coat outfit. The long coat may deform oddly with Mixamo's rig. Check the preview, and if the coat tears through the legs, choose another model or a shorter coat. |
+| **Isabelle** | Sketchfab / Fab: "Isabelle Animal Crossing", "Shizue" (her Japanese name) | Tick the **Animated** filter first. Otherwise try Mixamo. | She's bipedal but has a huge head and short limbs. Mixamo can sometimes rig her if the markers are placed carefully. Judge the preview. If neither works, she stays a Stand-in. |
+| **Reshiram** | Sketchfab / Fab: "Reshiram", with the **Animated** filter | Must ship with clips | A dragon, so Mixamo can't rig her. Choose a model with an idle or flying loop and, ideally, a roar for `talk`. If none exists, she stays a Stand-in. Optional stretch goal: hand-animate a simple wing-flap loop in Blender. |
+
+### After the GLB is ready
+
+```
+npm run add-model -- ~/models/joker.glb joker --idle idle --talk talk
+```
+
+Then, in `src/world/characters/joker.ts`:
+- set `source` (`url: '/models/joker.glb'` and the clip names)
+- set `credit`
+- run `npm test`
+- commit the `.glb` and the edited file together
 
 ## Credits
 
@@ -240,7 +311,7 @@ Kept: `src/lib/voxel/*` (the town uses it until sub-project C).
   - 1.5 MB per model
   - Stand-ins instead of a voxel fallback
   - this replaces the `.vox` upgrade note in ADR 0004
-- New `docs/learning/10-real-characters.md`: the pipeline, the Blender/Mixamo/VRoid prep steps, slots and Stand-ins, mixers, and reduced motion.
+- New `docs/learning/10-real-characters.md`: the pipeline, the sourcing and prep steps above, slots and Stand-ins, mixers, and reduced motion.
 
 ## Constraints carried forward
 
