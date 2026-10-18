@@ -40,11 +40,19 @@ The Cast Member the camera frames for a Step: Minh (Hello), Phoenix Wright (Work
 _Avoid_: Guide, mascot
 
 **Cast Member**:
-A character standing in the World (the owner or a fan-art game character), clickable for a speech bubble.
-_Avoid_: NPC, sprite, avatar
+A character standing in the World: the owner's stylised avatar or a fan-art game character. It's shown as its community glTF model, or as a Stand-in until that model exists. Clickable for a speech bubble.
+_Avoid_: NPC, sprite
+
+**Stand-in**:
+The translucent capsule a Cast Member shows when it has no model yet, while its model loads, or when the model fails to load.
+_Avoid_: Placeholder, ghost
+
+**Credit**:
+The attribution (title, author, licence, source link) a Cast Member's licensed model requires, listed under the Contact Step.
+_Avoid_: Attribution, license (as the entry name)
 
 **Voxel Model**:
-A character or prop defined as a palette plus text layer grids (or boxes painted into them), turned into a merged mesh at runtime.
+A town prop (building, tree, terrain feature) defined as a palette plus text layer grids (or boxes painted into them), turned into a merged mesh at runtime. Cast Members are no longer Voxel Models.
 _Avoid_: Asset, 3D model (when referring to these code-authored grids)
 
 ## Structure
