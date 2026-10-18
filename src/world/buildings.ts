@@ -14,7 +14,7 @@ export interface Placement {
 
 const WINDOW = { w: '#ffffff' };
 
-const cafe: Building = {
+export const cafe: Building = {
 	model: modelFromBoxes({ R: '#8b4a3a', D: '#3b3b45', W: '#6b4a2b', A: '#2f6b45' }, [
 		[1, 0, 1, 20, 13, 14, 'R'],
 		[0, 14, 0, 21, 14, 15, 'D'],
@@ -29,7 +29,7 @@ const cafe: Building = {
 	]),
 };
 
-const courthouse: Building = {
+export const courthouse: Building = {
 	model: modelFromBoxes({ S: '#e3ddd0', G: '#8b8f99', C: '#f2efe8', W: '#6b4a2b' }, [
 		[0, 0, 0, 25, 1, 19, 'G'],
 		[2, 2, 2, 23, 15, 15, 'S'],
