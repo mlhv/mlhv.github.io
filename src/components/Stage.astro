@@ -22,10 +22,12 @@ import { STEPS } from "../stage/steps";
 
 <script>
 	import { activeStep } from "../stage/active-step";
+	import { focusStep } from "../stage/focus-step";
 
 	let teardown: (() => void) | null = null;
 
 	document.addEventListener("astro:page-load", () => {
+		teardown?.();
 		const sections = [...document.querySelectorAll<HTMLElement>("[data-step]")];
 		const rail = document.querySelector<HTMLElement>("[data-rail]");
 		if (sections.length === 0 || !rail) return;
@@ -51,7 +53,16 @@ import { STEPS } from "../stage/steps";
 
 		const update = () => {
 			frame = 0;
-			setActive(activeStep(sections.map((section) => section.getBoundingClientRect()), window.innerHeight));
+			const height = window.innerHeight;
+			const byScroll = activeStep(sections.map((section) => section.getBoundingClientRect()), height);
+			// A focused element that is on screen decides, so the scroll its focus caused cannot undo the focusin choice.
+			const focused = document.activeElement;
+			const focusedIndex = focused ? sections.findIndex((section) => section.contains(focused)) : -1;
+			setActive(
+				focused && focusedIndex >= 0
+					? focusStep(focusedIndex, focused.getBoundingClientRect(), height, byScroll)
+					: byScroll,
+			);
 		};
 		const schedule = () => {
 			if (frame === 0) frame = requestAnimationFrame(update);
