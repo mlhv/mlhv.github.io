@@ -81,6 +81,7 @@ const { id } = STEPS[index];
 	:global(:root[data-stage]) .step:not([data-active]) .card {
 		opacity: 0;
 		transform: translateY(2rem);
+		pointer-events: none;
 	}
 
 	@media (prefers-reduced-motion: reduce) {
@@ -91,6 +92,9 @@ const { id } = STEPS[index];
 		:global(:root[data-stage]) .step:not([data-active]) .card {
 			opacity: 0.15;
 			transform: none;
+			/* Dimmed cards are inert to the pointer too: World would treat a tap there as solid, and they read as disabled.
+			   Keyboard focus still reaches them and activates the Step. */
+			pointer-events: none;
 		}
 	}
 
