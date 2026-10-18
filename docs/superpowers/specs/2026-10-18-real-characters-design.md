@@ -92,11 +92,11 @@ export const loadCharacter = async (source: CharacterSource, height: number): Pr
 - It scales and grounds the model with a pure function in `src/world/fit.ts`:
 
   ```ts
-  /** Uniform scale and y offset that make a box `height` tall with its bottom at y = 0. */
-  export const fitToHeight = (box: { min: Vec3; max: Vec3 }, height: number): { scale: number; offsetY: number };
+  /** Uniform scale and offset that make a box `height` tall, its bottom at y = 0 and its centre on x = z = 0. */
+  export const fitToHeight = (box: { min: Vec3; max: Vec3 }, height: number): { scale: number; offset: Vec3 };
   ```
 
-  The model also gets centred on x and z, so its base position is where it stands.
+  Centring on x and z means the model's base position is exactly where it stands.
 - It looks up `clips.idle` and `clips.talk` by name. If the idle clip is missing, or a named talk clip is missing, it throws, and the load counts as failed.
 - It stays the only place that turns a `CharacterSource` into an object.
 
@@ -274,7 +274,7 @@ All tests are Vitest on pure functions, as today:
   - every `source.url` exists under `public/`
   - `height` is positive
 - `models.test.ts`: every `.glb` in `public/models/` is at most 1.5 MB, and every file there is referenced by some member's `source`, so nothing is left orphaned.
-- `fit.test.ts`: `fitToHeight` works for an off-origin box, a box below the ground, and a flat box.
+- `fit.test.ts`: `fitToHeight` works for an off-origin box, a box below the ground, huge and tiny boxes, a flat box, and an empty box.
 - `motion.test.ts`: `still` returns a zero pose for any t, and `soar` stays bounded and is deterministic. This replaces `idle.test.ts`.
 - `credits.test.ts`: `creditLines` returns no lines when nothing is credited, and returns lines in cast order.
 - The existing `speech`, `camera-path`, `terrain` and `buildings` tests keep passing.
