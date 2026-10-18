@@ -184,8 +184,11 @@ export const startWorld = async (
 			const actor = actors.find((a) => a.member.id === id);
 			if (actor && !options.reducedMotion) {
 				const talk = actor.rig?.talk;
-				if (actor.rig && talk) fadeTo(actor.rig.idle, talk.reset());
-				else actor.hopStart = seconds();
+				// A running talk has already faded idle out; fading it in again from weight 0 would show the bind pose.
+				if (actor.rig && talk) {
+					if (talk.isRunning()) talk.reset();
+					else fadeTo(actor.rig.idle, talk.reset());
+				} else actor.hopStart = seconds();
 			}
 			if (options.reducedMotion) render();
 		},
