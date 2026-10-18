@@ -19,17 +19,25 @@ _Avoid_: Job, position (as the entry name)
 **Resume**:
 The `/resume` page plus `public/resume.pdf`, both generated from the master résumé. The phone number is never published.
 
-**Desktop**:
-The homepage layout: a fake OS-desktop metaphor containing one Window per nav section, floating over the World.
-_Avoid_: Homepage (when specifically discussing the desktop metaphor, not the page in general)
-
 **Window**:
-A static, non-draggable styled panel on the Desktop representing one nav section (Projects, Work Experience, Blog, Contact); clicking it navigates to that section's real page.
+A static, non-draggable styled panel with a title bar, used for Project cards and on the Resume page.
 _Avoid_: Card, tile, icon
 
 **World**:
-The full-screen 3D voxel town rendered behind the homepage content; the camera travels across it as the page scrolls, and it switches between day and night with the theme. Purely decorative: nothing essential lives only in the World.
+The full-screen 3D voxel town rendered behind the homepage content; the camera glides to each Step's Host as the Stage advances, and it switches between day and night with the theme. Purely decorative: nothing essential lives only in the World.
 _Avoid_: Scene, background, game
+
+**Stage**:
+The homepage as a sequence of Steps revealed one at a time over the World as the page scrolls.
+_Avoid_: Slideshow, carousel
+
+**Step**:
+One full-height section of the Stage (Hello, Work Experience, Projects, Blog, Contact) holding a single glass card. Only the active Step's card is shown; the others stay in the page for keyboard, screen-reader and no-JS users.
+_Avoid_: Slide, panel, page
+
+**Host**:
+The Cast Member the camera frames for a Step: Minh (Hello), Phoenix Wright (Work Experience), Joker (Projects), Isabelle (Blog), Reshiram (Contact).
+_Avoid_: Guide, mascot
 
 **Cast Member**:
 A character standing in the World (the owner or a fan-art game character), clickable for a speech bubble.
@@ -45,4 +53,4 @@ _Avoid_: Asset, 3D model (when referring to these code-authored grids)
 
 ## Theme
 
-Cute and game-like but recruiter-readable: a retro-desktop metaphor structures the homepage, with playful accents (rounded "sticker" page titles with a slight tilt, pill-shaped nav and buttons, chunky offset shadows) applied only to chrome/headers/buttons — never to body text or data-dense areas like Work Experience. Palette is "Pallet Town": grass green accent and sky-blue secondary on a pale meadow background, with white panels so content stands off the page; dark mode is a forest-night version of the same. Headings use Fredoka (rounded); body text uses Atkinson Hyperlegible. Every text/background pairing meets WCAG AA.
+Cute and game-like but recruiter-readable: the homepage is a Stage of dark frosted-glass cards over the World, with playful accents (rounded "sticker" page titles with a slight tilt, pill-shaped nav and buttons, chunky offset shadows) applied only to chrome/headers/buttons — never to body text or data-dense areas like Work Experience. Palette is "Pallet Town": grass green accent and sky-blue secondary on a pale meadow background, with white panels on inner pages so content stands off the page; dark mode is a forest-night version of the same. Headings use Fredoka (rounded); body text uses Atkinson Hyperlegible. Every text/background pairing meets WCAG AA.
