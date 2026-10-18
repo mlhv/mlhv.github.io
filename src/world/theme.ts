@@ -13,8 +13,10 @@ export interface WorldPreset {
 	/** Unlit building-window colour. */
 	glow: string;
 	stars: boolean;
-	/** PointLight intensity on Gengar (0 = off). */
-	gengarGlow: number;
+	/** Stand-in colour (also its emissive colour). */
+	standIn: string;
+	/** Stand-in emissive intensity: a hint by day, a soft glow at night. */
+	standInGlow: number;
 }
 
 /** Light mode is day; dark mode is night. */
@@ -29,7 +31,8 @@ export const PRESETS: Record<WorldTheme, WorldPreset> = {
 		sea: '#5fb6e6',
 		glow: '#9cc9e8',
 		stars: false,
-		gengarGlow: 0,
+		standIn: '#bff5df',
+		standInGlow: 0.15,
 	},
 	dark: {
 		sky: '#16233a',
@@ -41,7 +44,8 @@ export const PRESETS: Record<WorldTheme, WorldPreset> = {
 		sea: '#1d3557',
 		glow: '#ffd27a',
 		stars: true,
-		gengarGlow: 120,
+		standIn: '#bff5df',
+		standInGlow: 0.6,
 	},
 };
 

@@ -1,17 +1,17 @@
 import {
-	Box3,
 	CircleGeometry,
 	Color,
 	DirectionalLight,
 	Fog,
+	Group,
 	HemisphereLight,
 	Mesh,
 	MeshBasicMaterial,
 	PerspectiveCamera,
-	PointLight,
 	Points,
 	Scene,
-	Vector3,
+	SkinnedMesh,
+	Texture,
 	WebGLRenderer,
 	type Material,
 	type Object3D,
@@ -20,9 +20,9 @@ import type { StepId } from '../stage/steps';
 import { glideAt, retarget, shotFor, still, type CameraKey, type Glide } from './camera-path';
 import type { CastMember } from './cast';
 import { cast } from './characters';
-import { idlePose } from './idle';
-import { loadCharacter } from './load-character';
+import { motionPose } from './motion';
 import { createSpeech, hopHeight } from './speech';
+import { createStandIn, createStandInMaterial } from './stand-in';
 import { surfaceY } from './terrain';
 import { PRESETS, documentTheme, watchTheme, type WorldTheme } from './theme';
 import { buildTown } from './town';
@@ -40,25 +40,29 @@ export interface WorldController {
 	goTo: (step: StepId) => void;
 }
 
-export interface WorldHooks {
-	onPick?: (id: string) => void;
-}
-
 interface Actor {
 	member: CastMember;
-	object: Object3D;
+	/** Moved every frame; holds the Stand-in or the model. Speech raycasts target it. */
+	slot: Group;
+	/** The Stand-in while the slot shows one. */
+	standIn: Mesh | null;
 	shadow: Mesh;
 	seed: number;
 	/** Seconds since start when the last hop began. */
 	hopStart: number;
 }
 
-const disposeScene = (scene: Scene) =>
-	scene.traverse((node) => {
+/** Frees the geometries, materials, textures and skeletons under `root`. */
+const disposeObject = (root: Object3D) =>
+	root.traverse((node) => {
+		if (node instanceof SkinnedMesh) node.skeleton.dispose();
 		if (node instanceof Mesh || node instanceof Points) {
 			node.geometry.dispose();
 			const materials: Material[] = Array.isArray(node.material) ? node.material : [node.material];
-			for (const material of materials) material.dispose();
+			for (const material of materials) {
+				for (const value of Object.values(material)) if (value instanceof Texture) value.dispose();
+				material.dispose();
+			}
 		}
 	});
 
@@ -86,23 +90,18 @@ export const startWorld = async (
 
 	const shadowGeometry = new CircleGeometry(1, 20);
 	const shadowMaterial = new MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.18, depthWrite: false });
-	const size = new Vector3();
-	const actors: Actor[] = await Promise.all(
-		cast.map(async (member, index) => {
-			const object = await loadCharacter(member.source);
-			new Box3().setFromObject(object).getSize(size);
-			const shadow = new Mesh(shadowGeometry, shadowMaterial);
-			shadow.rotation.x = -Math.PI / 2;
-			// Capped so Reshiram's wingspan doesn't spread a blob past the edge of his cliff.
-			shadow.scale.setScalar(Math.min(10, Math.max(size.x, size.z) * 0.45));
-			scene.add(object, shadow);
-			return { member, object, shadow, seed: index * 1.7, hopStart: -Infinity };
-		}),
-	);
-
-	const gengarGlow = new PointLight(0xb388ff, 0, 40);
-	gengarGlow.position.set(0, 8, 4);
-	actors.find((actor) => actor.member.id === 'gengar')?.object.add(gengarGlow);
+	const standInMaterial = createStandInMaterial();
+	const actors: Actor[] = cast.map((member, index) => {
+		const slot = new Group();
+		const standIn = createStandIn(member.height, standInMaterial);
+		slot.add(standIn);
+		const shadow = new Mesh(shadowGeometry, shadowMaterial);
+		shadow.rotation.x = -Math.PI / 2;
+		// Capped so Reshiram's shadow doesn't spread past the edge of the cliff.
+		shadow.scale.setScalar(Math.min(10, member.height * 0.3));
+		scene.add(slot, shadow);
+		return { member, slot, standIn, shadow, seed: index * 1.7, hopStart: -Infinity };
+	});
 
 	const applyTheme = (theme: WorldTheme) => {
 		const preset = PRESETS[theme];
@@ -116,7 +115,9 @@ export const startWorld = async (
 		town.seaMaterial.color.set(preset.sea);
 		town.windowMaterial.color.set(preset.glow);
 		town.stars.visible = preset.stars;
-		gengarGlow.intensity = preset.gengarGlow;
+		standInMaterial.color.set(preset.standIn);
+		standInMaterial.emissive.set(preset.standIn);
+		standInMaterial.emissiveIntensity = preset.standInGlow;
 	};
 
 	const resize = () => {
@@ -139,21 +140,19 @@ export const startWorld = async (
 	};
 
 	const place = (actor: Actor, t: number) => {
-		const [baseX, baseZ] = actor.member.position;
-		const pose = idlePose(actor.member.idle, options.reducedMotion ? 0 : t, options.reducedMotion ? 0 : actor.seed);
-		const x = baseX + pose.dx;
-		const z = baseZ + pose.dz;
+		const [x, z] = actor.member.position;
+		const pose = motionPose(actor.member.motion, options.reducedMotion ? 0 : t, options.reducedMotion ? 0 : actor.seed);
 		const ground = surfaceY(x, z);
 		const hop = options.reducedMotion ? 0 : hopHeight(t - actor.hopStart);
-		actor.object.position.set(x, ground + pose.dy + hop, z);
-		actor.object.rotation.set(0, pose.heading ?? actor.member.facing, pose.sway);
+		actor.slot.position.set(x, ground + pose.dy + hop, z);
+		actor.slot.rotation.set(0, actor.member.facing, pose.sway);
 		actor.shadow.position.set(x, ground + 0.05, z);
 	};
 
 	const speech = createSpeech({
 		camera,
 		bubble,
-		targets: actors.map(({ member, object }) => ({ member, object })),
+		targets: actors.map(({ member, slot }) => ({ member, object: slot })),
 		onPick: (id) => {
 			const actor = actors.find((a) => a.member.id === id);
 			if (actor) actor.hopStart = seconds();
@@ -215,7 +214,8 @@ export const startWorld = async (
 			window.removeEventListener('resize', onResize);
 			stopTheme();
 			speech.dispose();
-			disposeScene(scene);
+			disposeObject(scene);
+			standInMaterial.dispose(); // not in the scene once every Stand-in has been swapped out
 			renderer.dispose();
 			renderer.forceContextLoss();
 			canvas.classList.remove('ready');
