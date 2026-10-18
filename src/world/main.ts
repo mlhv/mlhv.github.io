@@ -1,10 +1,12 @@
 import {
+	AnimationMixer,
 	CircleGeometry,
 	Color,
 	DirectionalLight,
 	Fog,
 	Group,
 	HemisphereLight,
+	LoopOnce,
 	Mesh,
 	MeshBasicMaterial,
 	PerspectiveCamera,
@@ -13,6 +15,7 @@ import {
 	SkinnedMesh,
 	Texture,
 	WebGLRenderer,
+	type AnimationAction,
 	type Material,
 	type Object3D,
 } from 'three';
@@ -20,6 +23,8 @@ import type { StepId } from '../stage/steps';
 import { glideAt, retarget, shotFor, still, type CameraKey, type Glide } from './camera-path';
 import type { CastMember } from './cast';
 import { cast } from './characters';
+import { loadCharacter, type LoadedCharacter } from './load-character';
+import { loadOrder } from './load-order';
 import { motionPose } from './motion';
 import { createSpeech, hopHeight } from './speech';
 import { createStandIn, createStandInMaterial } from './stand-in';
@@ -40,17 +45,39 @@ export interface WorldController {
 	goTo: (step: StepId) => void;
 }
 
+interface Rig {
+	mixer: AnimationMixer;
+	idle: AnimationAction;
+	talk: AnimationAction | null;
+}
+
 interface Actor {
 	member: CastMember;
 	/** Moved every frame; holds the Stand-in or the model. Speech raycasts target it. */
 	slot: Group;
 	/** The Stand-in while the slot shows one. */
 	standIn: Mesh | null;
+	/** The loaded model's animation, once it has swapped in. */
+	rig: Rig | null;
 	shadow: Mesh;
 	seed: number;
 	/** Seconds since start when the last hop began. */
 	hopStart: number;
 }
+
+/** Seconds a clip takes to blend into the next. */
+const BLEND_SECONDS = 0.25;
+/** Caps one frame's animation step, so a tab that was hidden for a while doesn't jump. */
+const MAX_FRAME_SECONDS = 0.1;
+
+/** Cross-fades `from` into `to`. Re-enables `to` first: three.js disables an action once it has faded out to 0. */
+const fadeTo = (from: AnimationAction, to: AnimationAction) => {
+	to.enabled = true;
+	to.setEffectiveTimeScale(1);
+	to.setEffectiveWeight(1);
+	to.play();
+	from.crossFadeTo(to, BLEND_SECONDS, false);
+};
 
 /** Frees the geometries, materials, textures and skeletons under `root`. */
 const disposeObject = (root: Object3D) =>
@@ -100,7 +127,7 @@ export const startWorld = async (
 		// Capped so Reshiram's shadow doesn't spread past the edge of the cliff.
 		shadow.scale.setScalar(Math.min(10, member.height * 0.3));
 		scene.add(slot, shadow);
-		return { member, slot, standIn, shadow, seed: index * 1.7, hopStart: -Infinity };
+		return { member, slot, standIn, rig: null, shadow, seed: index * 1.7, hopStart: -Infinity };
 	});
 
 	const applyTheme = (theme: WorldTheme) => {
@@ -155,13 +182,62 @@ export const startWorld = async (
 		targets: actors.map(({ member, slot }) => ({ member, object: slot })),
 		onPick: (id) => {
 			const actor = actors.find((a) => a.member.id === id);
-			if (actor) actor.hopStart = seconds();
+			if (actor && !options.reducedMotion) {
+				const talk = actor.rig?.talk;
+				if (actor.rig && talk) fadeTo(actor.rig.idle, talk.reset());
+				else actor.hopStart = seconds();
+			}
 			if (options.reducedMotion) render();
 		},
 	});
 	const render = () => {
 		renderer.render(scene, camera);
 		speech.update();
+	};
+
+	/** Replaces an actor's Stand-in with its loaded model and starts the idle clip. */
+	const swapIn = (actor: Actor, { object, clips }: LoadedCharacter) => {
+		if (actor.standIn) {
+			actor.slot.remove(actor.standIn);
+			actor.standIn.geometry.dispose(); // the material is shared with the other Stand-ins
+			actor.standIn = null;
+		}
+		actor.slot.add(object);
+		const mixer = new AnimationMixer(object);
+		const idle = mixer.clipAction(clips.idle).play();
+		// Offset per Host so they don't breathe in step; reduced motion holds frame 0 as the standing pose.
+		idle.time = options.reducedMotion || clips.idle.duration <= 0 ? 0 : (actor.seed * 0.37) % clips.idle.duration;
+		const talk = clips.talk ? mixer.clipAction(clips.talk) : null;
+		if (talk) {
+			talk.setLoop(LoopOnce, 1);
+			talk.clampWhenFinished = true;
+			mixer.addEventListener('finished', (event) => {
+				if (event.action === talk) fadeTo(talk, idle);
+			});
+		}
+		mixer.update(0);
+		actor.rig = { mixer, idle, talk };
+		if (options.reducedMotion) render();
+	};
+
+	let stopped = false;
+	/** Loads models one at a time; a failure keeps that Stand-in and moves on. */
+	const loadModels = async () => {
+		for (const member of loadOrder(cast, options.initialStep)) {
+			const actor = actors.find((a) => a.member === member);
+			if (!actor) continue;
+			try {
+				const loaded = await loadCharacter(member.source, member.height);
+				if (stopped) {
+					disposeObject(loaded.object);
+					return;
+				}
+				swapIn(actor, loaded);
+			} catch (error) {
+				if (stopped) return;
+				console.warn('[world] model failed', member.id, error);
+			}
+		}
 	};
 
 	/** Points the camera at `shot`: a cut with reduced motion, otherwise a glide from where it is now. */
@@ -176,12 +252,18 @@ export const startWorld = async (
 	};
 
 	let frame = 0;
+	let last = start;
 	const tick = (now: number) => {
 		frame = requestAnimationFrame(tick);
 		if (document.hidden) return;
 		const t = (now - start) / 1000;
+		const delta = Math.min(MAX_FRAME_SECONDS, Math.max(0, (now - last) / 1000));
+		last = now;
 		aimCamera(t);
-		for (const actor of actors) place(actor, t);
+		for (const actor of actors) {
+			place(actor, t);
+			actor.rig?.mixer.update(delta);
+		}
 		render();
 	};
 
@@ -207,9 +289,12 @@ export const startWorld = async (
 	else frame = requestAnimationFrame(tick);
 	canvas.classList.add('ready');
 	performance.mark('world:start');
+	void loadModels();
 
 	return {
 		stop: () => {
+			stopped = true;
+			for (const actor of actors) actor.rig?.mixer.stopAllAction();
 			cancelAnimationFrame(frame);
 			window.removeEventListener('resize', onResize);
 			stopTheme();
