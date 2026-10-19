@@ -1,8 +1,9 @@
-import { Color, InstancedMesh, Mesh, type Points } from 'three';
+import { Color, InstancedMesh, Matrix4, Mesh, Vector3, type Points } from 'three';
 import { describe, expect, it } from 'vitest';
 import { MOUNTAINS, heightAt } from './layout';
 import type { MeadowPalette } from './palette';
 import { buildGround } from './ground';
+import { buildGrass } from './grass';
 import { buildSky } from './sky';
 
 const day: MeadowPalette = {
@@ -67,5 +68,28 @@ describe('buildGround', () => {
 	it('places one mountain per peak', () => {
 		const mountains = buildGround().group.getObjectByName('mountains') as InstancedMesh;
 		expect(mountains.count).toBe(MOUNTAINS.length);
+	});
+});
+
+describe('buildGrass', () => {
+	it('draws `count` blades of 5 triangles each, planted on the ground', () => {
+		const grass = buildGrass(8000, { value: 0 });
+		expect(grass.mesh.count).toBe(8000);
+		expect(grass.mesh.geometry.index?.count).toBe(15);
+		const matrix = new Matrix4();
+		const root = new Vector3();
+		for (const i of [0, 1234, 7999]) {
+			grass.mesh.getMatrixAt(i, matrix);
+			root.setFromMatrixPosition(matrix);
+			expect(root.y).toBeCloseTo(heightAt(root.x, root.z), 5);
+		}
+	});
+
+	it('thins to a lower count but never above the count it was built with', () => {
+		const grass = buildGrass(8000, { value: 0 });
+		grass.setCount(100);
+		expect(grass.mesh.count).toBe(100);
+		grass.setCount(60000);
+		expect(grass.mesh.count).toBe(8000);
 	});
 });
