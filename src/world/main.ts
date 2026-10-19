@@ -1,11 +1,7 @@
 import {
 	AnimationMixer,
 	CircleGeometry,
-	Color,
-	DirectionalLight,
-	Fog,
 	Group,
-	HemisphereLight,
 	LoopOnce,
 	Mesh,
 	MeshBasicMaterial,
@@ -19,30 +15,24 @@ import {
 	type Material,
 	type Object3D,
 } from 'three';
-import type { StepId } from '../stage/steps';
-import { glideAt, retarget, shotFor, still, type CameraKey, type Glide } from './camera-path';
 import type { CastMember } from './cast';
 import { hosts } from './characters';
 import { loadCharacter, type LoadedCharacter } from './load-character';
-import { loadOrder } from './load-order';
+import { BASE_FOV, CAMERA, heightAt, verticalFov } from './meadow/layout';
+import { buildMeadow } from './meadow/meadow';
+import { TIERS, newMonitor, nextTier, pickTier, recordFrame, tierOverride, type Tier } from './meadow/quality';
 import { motionPose } from './motion';
 import { createSpeech, hopHeight } from './speech';
-import { createStandIn, createStandInMaterial } from './stand-in';
-import { surfaceY } from './terrain';
+import { STAND_IN, createStandIn, createStandInMaterial } from './stand-in';
 import { PRESETS, documentTheme, watchTheme, type WorldTheme } from './theme';
-import { buildTown } from './town';
 
 export interface WorldOptions {
 	reducedMotion: boolean;
-	/** The Step to frame first (from the Stage, or the URL hash before the Stage has spoken). */
-	initialStep: StepId;
 }
 
 export interface WorldController {
 	/** Frees every GPU resource and listener. */
 	stop: () => void;
-	/** Glides the camera to a Step's Host (cuts instantly with reduced motion). */
-	goTo: (step: StepId) => void;
 }
 
 interface Rig {
@@ -93,27 +83,34 @@ const disposeObject = (root: Object3D) =>
 		}
 	});
 
-/** Builds the World into `canvas` and starts it on `options.initialStep`. */
+/** What pickTier reads from the browser. deviceMemory is Chromium-only. */
+const deviceHints = () => ({
+	coarsePointer: window.matchMedia('(pointer: coarse)').matches,
+	cores: navigator.hardwareConcurrency || undefined,
+	memoryGB: (navigator as Navigator & { deviceMemory?: number }).deviceMemory,
+});
+
+/** Builds the World into `canvas`: the meadow, seen from one fixed camera. */
 export const startWorld = async (
 	canvas: HTMLCanvasElement,
 	bubble: HTMLElement,
 	options: WorldOptions,
 ): Promise<WorldController> => {
+	// `?world=low|medium|high` pins a tier while developing; the frame check then only logs.
+	const forced = import.meta.env.DEV ? tierOverride(location.search) : null;
+	let tier: Tier = forced ?? pickTier(deviceHints());
+
 	const renderer = new WebGLRenderer({ canvas, antialias: true });
-	const coarse = window.matchMedia('(pointer: coarse)').matches;
-	renderer.setPixelRatio(Math.min(window.devicePixelRatio, coarse ? 1.5 : 2));
+	const applyPixelRatio = () => renderer.setPixelRatio(Math.min(window.devicePixelRatio, TIERS[tier].pixelRatio));
+	applyPixelRatio();
 
 	const scene = new Scene();
-	const fog = new Fog(0xffffff, 140, 320);
-	scene.fog = fog;
-	const camera = new PerspectiveCamera(40, 1, 1, 1000);
-	const hemi = new HemisphereLight();
-	const sun = new DirectionalLight();
-	sun.position.set(-60, 120, 80);
-	scene.add(hemi, sun);
-
-	const town = buildTown();
-	scene.add(town.group);
+	const meadow = buildMeadow(tier);
+	scene.fog = meadow.fog;
+	scene.add(meadow.group);
+	const camera = new PerspectiveCamera(BASE_FOV, 1, 1, 1000);
+	camera.position.set(...CAMERA.position);
+	camera.lookAt(...CAMERA.target);
 
 	const shadowGeometry = new CircleGeometry(1, 20);
 	const shadowMaterial = new MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.18, depthWrite: false });
@@ -124,52 +121,33 @@ export const startWorld = async (
 		slot.add(standIn);
 		const shadow = new Mesh(shadowGeometry, shadowMaterial);
 		shadow.rotation.x = -Math.PI / 2;
-		// Capped so Reshiram's shadow doesn't spread past the edge of the cliff.
 		shadow.scale.setScalar(Math.min(10, member.height * 0.3));
 		scene.add(slot, shadow);
 		return { member, slot, standIn, rig: null, shadow, seed: index * 1.7, hopStart: -Infinity };
 	});
 
 	const applyTheme = (theme: WorldTheme) => {
-		const preset = PRESETS[theme];
-		scene.background = new Color(preset.sky);
-		fog.color.set(preset.sky);
-		hemi.color.set(preset.hemiSky);
-		hemi.groundColor.set(preset.hemiGround);
-		hemi.intensity = preset.hemiIntensity;
-		sun.color.set(preset.sun);
-		sun.intensity = preset.sunIntensity;
-		town.seaMaterial.color.set(preset.sea);
-		town.windowMaterial.color.set(preset.glow);
-		town.stars.visible = preset.stars;
-		standInMaterial.color.set(preset.standIn);
-		standInMaterial.emissive.set(preset.standIn);
-		standInMaterial.emissiveIntensity = preset.standInGlow;
+		meadow.applyTheme(PRESETS[theme]);
+		standInMaterial.color.set(STAND_IN.color);
+		standInMaterial.emissive.set(STAND_IN.color);
+		standInMaterial.emissiveIntensity = STAND_IN.glow[theme];
 	};
 
 	const resize = () => {
 		const { innerWidth: w, innerHeight: h } = window;
 		renderer.setSize(w, h, false);
 		camera.aspect = w / h;
-		camera.fov = w < h ? 55 : 40;
+		camera.fov = verticalFov(camera.aspect);
 		camera.updateProjectionMatrix();
 	};
 
 	const start = performance.now();
 	const seconds = () => (performance.now() - start) / 1000;
 
-	let step = options.initialStep;
-	let glide: Glide = still(shotFor(step, 1)); // re-aimed for the real aspect right after the first resize()
-	const aimCamera = (t: number) => {
-		const { position, target } = glideAt(glide, t);
-		camera.position.set(...position);
-		camera.lookAt(...target);
-	};
-
 	const place = (actor: Actor, t: number) => {
 		const [x, z] = actor.member.position;
 		const pose = motionPose(actor.member.motion, options.reducedMotion ? 0 : t, options.reducedMotion ? 0 : actor.seed);
-		const ground = surfaceY(x, z);
+		const ground = heightAt(x, z);
 		const hop = options.reducedMotion ? 0 : hopHeight(t - actor.hopStart);
 		actor.slot.position.set(x, ground + pose.dy + hop, z);
 		actor.slot.rotation.set(0, actor.member.facing, pose.sway);
@@ -224,13 +202,13 @@ export const startWorld = async (
 	};
 
 	let stopped = false;
-	/** Loads models one at a time; a failure keeps that Stand-in and moves on. */
+	/** Loads models one at a time, in cast order; a failure keeps that Stand-in and moves on. */
 	const loadModels = async () => {
-		for (const member of loadOrder(hosts, options.initialStep)) {
-			const actor = actors.find((a) => a.member === member);
-			if (!actor) continue;
+		for (const actor of actors) {
+			const { source } = actor.member;
+			if (!source) continue;
 			try {
-				const loaded = await loadCharacter(member.source, member.height);
+				const loaded = await loadCharacter(source, actor.member.height);
 				if (stopped) {
 					disposeObject(loaded.object);
 					return;
@@ -238,31 +216,46 @@ export const startWorld = async (
 				swapIn(actor, loaded);
 			} catch (error) {
 				if (stopped) return;
-				console.warn('[world] model failed', member.id, error);
+				console.warn('[world] model failed', actor.member.id, error);
 			}
 		}
 	};
 
-	/** Points the camera at `shot`: a cut with reduced motion, otherwise a glide from where it is now. */
-	const moveTo = (shot: CameraKey) => {
-		if (options.reducedMotion) {
-			glide = still(shot);
-			aimCamera(0);
-			render();
-		} else {
-			glide = retarget(glide, shot, seconds());
-		}
+	const setTier = (next: Tier) => {
+		tier = next;
+		meadow.setTier(next);
+		applyPixelRatio();
+		resize();
 	};
 
 	let frame = 0;
-	let last = start;
+	let lastDrawn = start;
+	let monitor = newMonitor();
+	let measuring = true;
 	const tick = (now: number) => {
 		frame = requestAnimationFrame(tick);
-		if (document.hidden) return;
+		if (document.hidden) {
+			monitor = newMonitor(); // a hidden tab's gap is a pause, not a slow frame
+			return;
+		}
+		const gap = now - lastDrawn;
+		if (gap < 1000 / TIERS[tier].fps - 1) return; // the low tier draws at 30 fps
+		lastDrawn = now;
 		const t = (now - start) / 1000;
-		const delta = Math.min(MAX_FRAME_SECONDS, Math.max(0, (now - last) / 1000));
-		last = now;
-		aimCamera(t);
+		if (measuring) {
+			const result = recordFrame(monitor, gap, t);
+			monitor = result.monitor;
+			if (result.average !== null) {
+				if (import.meta.env.DEV) console.info(`[world] tier=${tier} avg=${result.average.toFixed(1)}ms`);
+				const next = forced ?? nextTier(tier, result.average);
+				if (next !== tier) {
+					setTier(next);
+					monitor = newMonitor();
+				} else measuring = false;
+			}
+		}
+		meadow.update(t);
+		const delta = Math.min(MAX_FRAME_SECONDS, Math.max(0, gap / 1000));
 		for (const actor of actors) {
 			place(actor, t);
 			actor.rig?.mixer.update(delta);
@@ -272,8 +265,7 @@ export const startWorld = async (
 
 	resize();
 	applyTheme(documentTheme());
-	glide = still(shotFor(step, camera.aspect));
-	aimCamera(0);
+	meadow.update(0);
 	for (const actor of actors) place(actor, 0);
 
 	const stopTheme = watchTheme((theme) => {
@@ -282,9 +274,7 @@ export const startWorld = async (
 	});
 	const onResize = () => {
 		resize();
-		const shot = shotFor(step, camera.aspect);
-		if (shot !== glide.to) moveTo(shot);
-		else if (options.reducedMotion) render();
+		if (options.reducedMotion) render();
 	};
 	window.addEventListener('resize', onResize);
 
@@ -308,11 +298,6 @@ export const startWorld = async (
 			renderer.forceContextLoss();
 			canvas.classList.remove('ready');
 			performance.mark('world:stop');
-		},
-		goTo: (next) => {
-			if (next === step) return;
-			step = next;
-			moveTo(shotFor(step, camera.aspect));
 		},
 	};
 };

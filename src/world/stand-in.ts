@@ -1,5 +1,8 @@
 import { CapsuleGeometry, Mesh, MeshStandardMaterial, type Material } from 'three';
 
+/** The Stand-in's colour (also its emissive colour). Its glow is a hint by day and soft at dusk. */
+export const STAND_IN = { color: '#bff5df', glow: { light: 0.15, dark: 0.6 } } as const;
+
 /** Capsule dimensions for a Stand-in `height` tall, standing on y = 0. */
 export const standInShape = (height: number) => {
 	const radius = height * 0.2;

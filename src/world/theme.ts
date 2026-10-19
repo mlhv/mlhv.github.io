@@ -1,51 +1,52 @@
 import { resolveTheme } from '../lib/theme';
 
+import type { MeadowPalette } from './meadow/palette';
+
 export type WorldTheme = 'light' | 'dark';
 
-export interface WorldPreset {
-	sky: string;
-	hemiSky: string;
-	hemiGround: string;
-	hemiIntensity: number;
-	sun: string;
-	sunIntensity: number;
-	sea: string;
-	/** Unlit building-window colour. */
-	glow: string;
-	stars: boolean;
-	/** Stand-in colour (also its emissive colour). */
-	standIn: string;
-	/** Stand-in emissive intensity: a hint by day, a soft glow at night. */
-	standInGlow: number;
-}
-
-/** Light mode is day; dark mode is night. */
-export const PRESETS: Record<WorldTheme, WorldPreset> = {
+/** Light mode is day; dark mode is dusk. theme.css copies each skyHorizon and grassNear for the no-WebGL fallback. */
+export const PRESETS: Record<WorldTheme, MeadowPalette> = {
 	light: {
-		sky: '#bfe3ff',
+		skyTop: '#6fb8ec',
+		skyHorizon: '#dcefff',
+		sunDisc: '#fff6d8',
 		hemiSky: '#ffffff',
-		hemiGround: '#9fd99a',
-		hemiIntensity: 1.6,
-		sun: '#fff4e0',
-		sunIntensity: 2.2,
-		sea: '#5fb6e6',
-		glow: '#9cc9e8',
+		hemiGround: '#a8d48f',
+		hemiIntensity: 1.4,
+		keyLight: '#fff1d6',
+		keyIntensity: 1.6,
+		grassNear: '#6fbf5a',
+		grassFar: '#a5d48a',
+		mountains: '#8fa9c4',
+		canopy: '#4f9a4a',
+		trunk: '#7a5a3c',
+		cloud: '#ffffff',
+		fog: '#dcefff',
+		fogNear: 120,
+		fogFar: 480,
 		stars: false,
-		standIn: '#bff5df',
-		standInGlow: 0.15,
+		fireflies: false,
 	},
 	dark: {
-		sky: '#16233a',
-		hemiSky: '#6b7fb3',
-		hemiGround: '#1d3a2a',
-		hemiIntensity: 0.7,
-		sun: '#9fb4ff',
-		sunIntensity: 0.6,
-		sea: '#1d3557',
-		glow: '#ffd27a',
+		skyTop: '#1a1d48',
+		skyHorizon: '#e09a7e',
+		sunDisc: '#f4f1ff',
+		hemiSky: '#5a64a8',
+		hemiGround: '#1c3a34',
+		hemiIntensity: 0.8,
+		keyLight: '#ffb38a',
+		keyIntensity: 0.7,
+		grassNear: '#2e5a4a',
+		grassFar: '#4a5f6e',
+		mountains: '#5b4a7a',
+		canopy: '#244a40',
+		trunk: '#3d2e2a',
+		cloud: '#b9a3c9',
+		fog: '#8e6f95',
+		fogNear: 100,
+		fogFar: 460,
 		stars: true,
-		standIn: '#bff5df',
-		standInGlow: 0.6,
+		fireflies: true,
 	},
 };
 

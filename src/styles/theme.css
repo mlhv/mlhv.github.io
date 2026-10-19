@@ -12,8 +12,8 @@
     --color-on-accent: #ffffff;    /* text/icons sitting on an accent-filled surface */
     --color-secondary: #2364a8;    /* sky blue: links and alternate Window title bars */
     --color-on-secondary: #ffffff;
-    --color-world-sky: #bfe3ff;    /* World fallback gradient (day) */
-    --color-world-ground: #9fd99a;
+    --color-world-sky: #dcefff;    /* World fallback gradient: the day preset's skyHorizon and grassNear */
+    --color-world-ground: #6fbf5a;
 
     /* Stage glass cards: the same dark glass in both themes, so these are not redefined for dark mode.
        glass-contrast.test.ts checks each text colour against this glass over pure white (the worst case). */
@@ -44,8 +44,8 @@
         --color-on-accent: #0f1a14;
         --color-secondary: #7fb2ea;
         --color-on-secondary: #0f1a14;
-        --color-world-sky: #16233a;    /* night */
-        --color-world-ground: #1d3a2a;
+        --color-world-sky: #e09a7e;    /* dusk: skyHorizon and grassNear */
+        --color-world-ground: #2e5a4a;
     }
 }
 
@@ -62,8 +62,8 @@
     --color-on-accent: #0f1a14;
     --color-secondary: #7fb2ea;
     --color-on-secondary: #0f1a14;
-    --color-world-sky: #16233a;    /* night */
-    --color-world-ground: #1d3a2a;
+    --color-world-sky: #e09a7e;    /* dusk: skyHorizon and grassNear */
+    --color-world-ground: #2e5a4a;
 }
 
 *, *::before, *::after {
