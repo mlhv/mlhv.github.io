@@ -22,7 +22,7 @@ export interface Credit {
 export interface CastMember {
 	id: string;
 	name: string;
-	/** Base position on the island, world units. */
+	/** Base position in the meadow (x, z), e.g. in the clearing, world units. */
 	position: readonly [x: number, z: number];
 	/** Radians around y; 0 faces the camera (+z). */
 	facing: number;

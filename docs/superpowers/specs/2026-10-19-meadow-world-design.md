@@ -203,7 +203,7 @@ This uses headless Chrome against `astro preview`, scripted in the scratchpad ra
 
 - **Approach C, CC0 props:** trees, rocks and flowers from a CC0 stylised nature pack (e.g. Quaternius or Kenney), optimised with `npm run add-model`. These replace or join the procedural trees through `createTree(spec)` without touching the rest of the scene.
 - **Approach B, a Blender-built meadow:** the whole scene modelled in Blender (5.2 LTS is installed) and exported as one GLB, keeping the shader sway on top. It gives the most art control. It is the slowest to build and adds megabytes to the first load, so it would need a new budget instead of the 1.5 MB model budget.
-- **Hosts:** bringing them back means `showHosts = true`. Place them in the clearing and reconsider the speech bubble's framing for a fixed camera. Sourcing and rigging are in the 2026-10-19 handoff.
+- **Hosts:** bringing them back means `showHosts = true`. Place them in the clearing and reconsider the speech bubble's framing for a fixed camera. Sourcing and rigging are in the 2026-10-19 handoff. Two known problems to resolve then: the clearing (`layout.ts` `CLEARING`) is on screen at 16:9 but mostly off the left edge on a 390x844 phone, and grass blades currently grow in the clearing.
 
 ## Out of scope
 
