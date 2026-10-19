@@ -28,6 +28,51 @@
 - **No `dispose()` on `Meadow`:** `main.ts` already disposes the whole scene with `disposeObject(scene)`, and that covers the meadow.
 - **Draw calls:** each tree is 2 meshes and each cloud is 1, so the scene is about 25 draw calls, not about 10. That is still trivial; the grass is one draw call either way.
 
+## Execution context (read before any task)
+
+The owner chose **subagent-driven development, run in a fresh session**. Nothing below is in the repo or in git history, so whoever runs this plan (the controller and every implementer) needs it.
+
+### Headless Chrome setup (used in Task 7 Step 10 and in Task 10)
+
+The Claude in Chrome extension was not connected on 2026-10-19, so visual checks used a scripted headless Chrome instead.
+
+- **Install Playwright in the new session's scratchpad.** The scratchpad directory is per-session, so the 2026-10-19 install is gone. Run `mkdir -p <scratchpad>/pw && cd <scratchpad>/pw && npm i playwright@1.56.1`. Never add Playwright to the repo's `package.json`.
+- **Launch with `chromium.launch({ channel: 'chrome' })`.** That uses the installed Google Chrome (`/Applications/Google Chrome.app`). Playwright's bundled Chromium is **not** downloaded, and a plain `chromium.launch()` fails with "Executable doesn't exist … chromium_headless_shell-1194". Don't run `npx playwright install`; it isn't needed.
+- **Restart the dev server after changing `astro.config.mjs` or imports:** `astro dev stop` then `astro dev --background`. A stale dev server answers module requests with **504 "Outdated Optimize Dep"**, the page's scripts silently fail, and things look broken when the code is fine. This happened on 2026-10-19 and made the theme toggle look broken. If something "doesn't work" in dev, check the console for 504s before debugging code. To tell a dev-server problem from a code problem, run the same check against the production build with `npx astro build && npx astro preview --port 4400`, then stop the preview afterwards.
+- **Headless WebGL is software-rendered** (SwiftShader). Its frame times say nothing about real performance. In headless, the adaptive tier drop will usually fall to `low`, which is why the screenshot script forces `?world=high` for the scene shots.
+- **Look at screenshots with the Read tool** on the PNG paths. The useful viewports are 1440×900 (desktop) and 390×844 (phone), each with `colorScheme: 'light'` and `'dark'`, plus `reducedMotion: 'reduce'`.
+- **Useful probe for click-through issues:** `document.elementFromPoint(x, y)` at a control's centre shows whether something covers it.
+
+### Tuning context (Task 10, and any implementer touching `layout.ts` or `theme.ts`)
+
+**What the owner wants and has rejected.** These come from the brainstorms; the memory file is `homepage-direction-feedback`.
+- **Rejected:** voxel/blocky art, flat lighting, a busy background behind the cards, and **any camera movement**. The World must be "perfectly in the background".
+- **Liked, and must not change:** the dark glass Step cards, the mint accent text (`--color-glass-accent` `#9be3b4`), the reveal animations, and the mandatory desktop scroll-snap.
+- **The target feel:** calm, crafted, game-like (Zelda/Ghibli meadow), and recruiter-first. Content always wins over scenery.
+- **Grass:** the owner explicitly wants the swaying grass, but not at the cost of an old laptop's frame rate. Fewer blades are acceptable, a slow page is not.
+
+**How the composition numbers were derived** (all in `layout.ts`, all pinned by `layout.test.ts`):
+- **The card's footprint:** cards are `min(60rem, 100%)` wide. On a 1440px screen that is 960px, so the card covers screen x in **−0.667…+0.667** (normalised), leaving about 240px each side. Trees must project to |x| between 1/3 and 1. The sun must sit at x < −0.7 so it isn't glaring at the card's left edge (the spec flagged this risk).
+- **The camera:** at y = 5 with a pitch of about 4° (`target` y = 12 at 100 units out), the flat horizon sits at 40.4% up a 16:9 screen. At the 40° vertical field of view, the bottom of the screen meets the ground about 17 units out. That's why the grass starts at `near: 14` and the clearing is 24–36 units out. If you raise the camera, the visible ground moves away fast (at y = 14 it starts about 44 units out, and the clearing and foreground grass leave the shot).
+- **Hills:** `HILL_HEIGHT` 12 keeps the far hill line just below the screen's middle, so the card sits mostly over sky and distant hills, which the spec calls "the calmest parts". Tall hills raise the skyline behind the card.
+- **Phones:** `verticalFov` keeps 16:9's horizontal view on narrower screens, but caps the vertical view at 75° (an uncapped phone would need about 109°, which looks fish-eyed). So on a phone, the side trees can fall partly outside the frame. That's acceptable; the horizon and the grass must stay in shot.
+- **The clearing** (x −14…−8, z −36…−24) exists only for the Hosts' return. Keep it empty and on screen.
+
+**Palette intent** (`theme.ts`; the starting values are guesses that need a visual pass):
+- **Day:** soft and warm, with low-contrast shading so the facets look gentle, not harsh. The haze at the horizon is the same colour as the fog, so the mountains dissolve into it.
+- **Dusk, not night:** indigo overhead, violet, and a **warm peach horizon**. Dark mode must never be a flat black screen, and the fireflies need a warm-to-dark backdrop to read.
+- **The fallback gradient:** if you change `skyHorizon` or `grassNear`, the matching `--color-world-*` tokens in `theme.css` must change too. `src/world/theme.test.ts` enforces this. In dark mode the fallback's top half is the peach horizon; check that it looks acceptable on the no-JS path, and raise it with the owner if it doesn't.
+- **Contrast** is already guaranteed by `src/styles/glass-contrast.test.ts`, which checks the glass over pure white. Tune the scenery freely; never change the glass tokens to make the scenery work.
+
+**What to look for in the Task 10 screenshots**, in priority order:
+1. Anything that competes with the card (glare, a high-contrast edge or busy motion right behind the text).
+2. The text over the scene reads as calm.
+3. Day and dusk each look intentional.
+4. The grass reads as grass, not noise, at the low tier as well (force `?world=low` for one extra shot).
+5. Phone framing.
+
+**Scope guard:** no camera movement or scroll parallax, and no changes to the Stage, the cards or the content. Hosts stay hidden (`showHosts = false`). The deadline is co-op applications on Fri 2026-10-23, so if tuning drags on, ship the best verified version rather than polishing.
+
 ## Review Focus
 
 These are inputs the spec implies but doesn't spell out. Each line names the test that pins it.
