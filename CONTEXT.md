@@ -24,7 +24,7 @@ A static, non-draggable styled panel with a title bar, used for Project cards an
 _Avoid_: Card, tile, icon
 
 **World**:
-The full-screen 3D voxel town rendered behind the homepage content; the camera glides to each Step's Host as the Stage advances, and it switches between day and night with the theme. Purely decorative: nothing essential lives only in the World.
+The full-screen 3D meadow rendered behind the homepage content from one fixed camera, with swaying grass and trees and drifting clouds; it switches between day and dusk with the theme. Purely decorative: nothing essential lives only in the World.
 _Avoid_: Scene, background, game
 
 **Stage**:
@@ -36,7 +36,7 @@ One full-height section of the Stage (Hello, Work Experience, Projects, Blog, Co
 _Avoid_: Slide, panel, page
 
 **Host**:
-The Cast Member the camera frames for a Step: Minh (Hello), Phoenix Wright (Work Experience), Joker (Projects), Isabelle (Blog), Reshiram (Contact).
+The Cast Member paired with a Step: Minh (Hello), Phoenix Wright (Work Experience), Joker (Projects), Isabelle (Blog), Reshiram (Contact). Parked behind `showHosts` until after co-op applications; when they return they stand in the meadow's clearing.
 _Avoid_: Guide, mascot
 
 **Cast Member**:
@@ -51,14 +51,10 @@ _Avoid_: Placeholder, ghost
 The attribution (title, author, licence, source link) a Cast Member's licensed model requires, listed under the Contact Step.
 _Avoid_: Attribution, license (as the entry name)
 
-**Voxel Model**:
-A town prop (building, tree, terrain feature) defined as a palette plus text layer grids (or boxes painted into them), turned into a merged mesh at runtime. Cast Members are no longer Voxel Models.
-_Avoid_: Asset, 3D model (when referring to these code-authored grids)
-
 ## Structure
 
 **Nav**: Home, Projects, Work Experience, Blog, Contact — five top-level items. The Resume is not its own nav item; it's reached via a link on the Contact page.
 
 ## Theme
 
-Cute and game-like but recruiter-readable: the homepage is a Stage of dark frosted-glass cards over the World, with playful accents (rounded "sticker" page titles with a slight tilt, pill-shaped nav and buttons, chunky offset shadows) applied only to chrome/headers/buttons — never to body text or data-dense areas like Work Experience. Palette is "Pallet Town": grass green accent and sky-blue secondary on a pale meadow background, with white panels on inner pages so content stands off the page; dark mode is a forest-night version of the same. Headings use Fredoka (rounded); body text uses Nunito (rounded, with a plain zero). Every text/background pairing meets WCAG AA.
+Cute and game-like but recruiter-readable: the homepage is a Stage of dark frosted-glass cards over the World, with playful accents (rounded "sticker" page titles with a slight tilt, pill-shaped nav and buttons, chunky offset shadows) applied only to chrome/headers/buttons — never to body text or data-dense areas like Work Experience. Palette is "Pallet Town": grass green accent and sky-blue secondary on a pale meadow background, with white panels on inner pages so content stands off the page; dark mode is a dusk version of the same. Headings use Fredoka (rounded); body text uses Nunito (rounded, with a plain zero). Every text/background pairing meets WCAG AA.
