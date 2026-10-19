@@ -230,20 +230,22 @@ export const startWorld = async (
 
 	let frame = 0;
 	let lastDrawn = start;
+	let lastCallback: number | null = null;
 	let monitor = newMonitor();
 	let measuring = true;
 	const tick = (now: number) => {
 		frame = requestAnimationFrame(tick);
 		if (document.hidden) {
 			monitor = newMonitor(); // a hidden tab's gap is a pause, not a slow frame
+			lastCallback = null;
 			return;
 		}
-		const gap = now - lastDrawn;
-		if (gap < 1000 / TIERS[tier].fps - 1) return; // the low tier draws at 30 fps
-		lastDrawn = now;
+		// Measure the per-rAF interval, not the throttled draw gap: a healthy 75/90 Hz display would otherwise look slow.
+		const interval = lastCallback === null ? null : now - lastCallback;
+		lastCallback = now;
 		const t = (now - start) / 1000;
-		if (measuring) {
-			const result = recordFrame(monitor, gap, t);
+		if (measuring && interval !== null) {
+			const result = recordFrame(monitor, interval, t);
 			monitor = result.monitor;
 			if (result.average !== null) {
 				if (import.meta.env.DEV) console.info(`[world] tier=${tier} avg=${result.average.toFixed(1)}ms`);
@@ -254,6 +256,9 @@ export const startWorld = async (
 				} else measuring = false;
 			}
 		}
+		const gap = now - lastDrawn;
+		if (gap < 1000 / TIERS[tier].fps - 1) return; // the low tier draws at 30 fps
+		lastDrawn = now;
 		meadow.update(t);
 		const delta = Math.min(MAX_FRAME_SECONDS, Math.max(0, gap / 1000));
 		for (const actor of actors) {
