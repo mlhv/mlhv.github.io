@@ -3,6 +3,7 @@ import {
 	SLOW_FRAME_MS,
 	TIERS,
 	WARMUP_FRAMES,
+	drawDue,
 	newMonitor,
 	nextTier,
 	pickTier,
@@ -90,5 +91,39 @@ describe('tierOverride', () => {
 		expect(tierOverride('?a=1&world=high')).toBe('high');
 		expect(tierOverride('?world=ultra')).toBeNull();
 		expect(tierOverride('')).toBeNull();
+	});
+});
+
+describe('drawDue', () => {
+	/** Draws counted over 2 s of rAF callbacks at a given refresh rate, throttled like main.ts. */
+	const simulate = (hz: number, fps: number) => {
+		const step = 1000 / hz;
+		let lastDrawn = 0;
+		let draws = 0;
+		let callbacks = 0;
+		for (let now = step; now <= 2000 + 1e-6; now += step) {
+			callbacks++;
+			const advance = drawDue(now - lastDrawn, fps);
+			if (advance === null) continue;
+			lastDrawn += advance;
+			draws++;
+		}
+		return { draws, callbacks };
+	};
+
+	for (const hz of [60, 75, 144]) {
+		it(`draws every callback at 60 fps on ${hz} Hz`, () => {
+			const { draws, callbacks } = simulate(hz, 60);
+			expect(draws).toBe(callbacks);
+		});
+		it(`draws about 30 fps at the 30 fps tier on ${hz} Hz`, () => {
+			const { draws } = simulate(hz, 30);
+			expect(Math.abs(draws / 2 - 30)).toBeLessThanOrEqual(1.5);
+		});
+	}
+
+	it('never advances by more than the time since the last draw', () => {
+		expect(drawDue(500, 30)).toBeLessThanOrEqual(500);
+		expect(drawDue(10, 30)).toBeNull();
 	});
 });

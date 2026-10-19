@@ -61,3 +61,15 @@ export const tierOverride = (search: string): Tier | null => {
 	const value = new URLSearchParams(search).get('world');
 	return value === 'low' || value === 'medium' || value === 'high' ? value : null;
 };
+
+/**
+ * The draw throttle. Given ms since the last draw slot and the tier's fps, returns how far to advance
+ * that slot, or null to skip this rAF. Tiers at 60 fps or more draw every callback (the screen paces them);
+ * lower tiers advance by whole frame intervals so leftover time carries and a 75 or 144 Hz screen still gets ~30 fps.
+ */
+export const drawDue = (sinceLastDraw: number, fps: number): number | null => {
+	if (fps >= 60) return sinceLastDraw;
+	const interval = 1000 / fps;
+	if (sinceLastDraw < interval - 1) return null;
+	return Math.min(sinceLastDraw, interval * Math.floor((sinceLastDraw + 1) / interval)); // whole intervals only: never bursts to catch up
+};

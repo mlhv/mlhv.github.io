@@ -5,6 +5,7 @@ import {
 	LoopOnce,
 	Mesh,
 	MeshBasicMaterial,
+	InstancedMesh,
 	PerspectiveCamera,
 	Points,
 	Scene,
@@ -20,7 +21,7 @@ import { hosts } from './characters';
 import { loadCharacter, type LoadedCharacter } from './load-character';
 import { BASE_FOV, CAMERA, heightAt, verticalFov } from './meadow/layout';
 import { buildMeadow } from './meadow/meadow';
-import { TIERS, newMonitor, nextTier, pickTier, recordFrame, tierOverride, type Tier } from './meadow/quality';
+import { TIERS, drawDue, newMonitor, nextTier, pickTier, recordFrame, tierOverride, type Tier } from './meadow/quality';
 import { motionPose } from './motion';
 import { createSpeech, hopHeight } from './speech';
 import { STAND_IN, createStandIn, createStandInMaterial } from './stand-in';
@@ -73,6 +74,7 @@ const fadeTo = (from: AnimationAction, to: AnimationAction) => {
 const disposeObject = (root: Object3D) =>
 	root.traverse((node) => {
 		if (node instanceof SkinnedMesh) node.skeleton.dispose();
+		if (node instanceof InstancedMesh) node.dispose(); // frees the instance-matrix buffer
 		if (node instanceof Mesh || node instanceof Points) {
 			node.geometry.dispose();
 			const materials: Material[] = Array.isArray(node.material) ? node.material : [node.material];
@@ -229,7 +231,8 @@ export const startWorld = async (
 	};
 
 	let frame = 0;
-	let lastDrawn = start;
+	let lastDrawn = start; // the throttle's frame slot; may trail the last draw while leftover time carries
+	let lastDrawnAt = start; // when the last draw happened, for the animation delta
 	let lastCallback: number | null = null;
 	let monitor = newMonitor();
 	let measuring = true;
@@ -256,9 +259,11 @@ export const startWorld = async (
 				} else measuring = false;
 			}
 		}
-		const gap = now - lastDrawn;
-		if (gap < 1000 / TIERS[tier].fps - 1) return; // the low tier draws at 30 fps
-		lastDrawn = now;
+		const advance = drawDue(now - lastDrawn, TIERS[tier].fps); // only the 30 fps tier is throttled
+		if (advance === null) return;
+		lastDrawn += advance;
+		const gap = now - lastDrawnAt;
+		lastDrawnAt = now;
 		meadow.update(t);
 		const delta = Math.min(MAX_FRAME_SECONDS, Math.max(0, gap / 1000));
 		for (const actor of actors) {
