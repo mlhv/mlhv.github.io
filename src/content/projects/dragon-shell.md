@@ -3,7 +3,7 @@ title: "Dragon Shell - Custom Shell and TCP Server"
 description: "Built a UNIX shell in C, that runs piped commands and I/O redirection using fork, execvp, and dup2, cleaning up child processes with waitpid."
 techStack: ["C","POSIX Sockets","pthreads","Linux"]
 featured: false
-order: 5
+order: 6
 ---
 
 - Built a UNIX shell in C, that runs piped commands and I/O redirection using fork, execvp, and dup2, cleaning up child processes with waitpid.

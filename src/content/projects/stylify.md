@@ -4,7 +4,7 @@ description: "Built a responsive virtual wardrobe system using React+Vite and Po
 techStack: ["React+Vite","Hono","PostgreSQL","AWS Lambda","S3","CloudFront"]
 repoUrl: "https://github.com/mlhv/Stylify"
 featured: false
-order: 7
+order: 8
 ---
 
 - Built a responsive virtual wardrobe system using React+Vite and PostgreSQL, featuring complete CRUD functionality to manage 500+ garment entries and generate recommendations using multi-param filtering.

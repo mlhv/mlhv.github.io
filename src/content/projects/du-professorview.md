@@ -6,7 +6,7 @@ monogram: "DU"
 repoUrl: "https://github.com/mlhv/drexel-rmp"
 liveUrl: "https://chromewebstore.google.com/detail/du-professorview/hglcajcloiiocoonpbfcdmgljofenlcp"
 featured: false
-order: 8
+order: 3
 ---
 
 - Built a chrome extension adding Rate My Professors ratings to Drexel's course catalog, used by 300 students.
