@@ -22,18 +22,13 @@ export default defineConfig({
     },
     {
       provider: fontProviders.local(),
-      name: "Atkinson Hyperlegible",
-      cssVariable: "--font-atkinson-hyperlegible",
+      name: "Nunito",
+      cssVariable: "--font-nunito",
       options: {
         variants: [
           {
-            src: ["./src/assets/fonts/AtkinsonHyperlegible-Regular.ttf"],
-            weight: "normal",
-            style: "normal",
-          },
-          {
-            src: ["./src/assets/fonts/AtkinsonHyperlegible-Bold.ttf"],
-            weight: "bold",
+            src: ["./src/assets/fonts/Nunito-Variable.ttf"],
+            weight: "200 1000",
             style: "normal",
           },
         ],

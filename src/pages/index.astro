@@ -43,7 +43,7 @@ const credits = creditLines(cast);
 
 	<StepCard id="work" steps={steps}>
 		<h2>Where I've worked</h2>
-		<ol class="entries">
+		<ol class="entries tiles">
 			{
 				resume.experience.map((job) => (
 					<li>
@@ -63,7 +63,7 @@ const credits = creditLines(cast);
 
 	<StepCard id="projects" steps={steps}>
 		<h2>Things I've built</h2>
-		<ul class="entries">
+		<ul class="entries tiles">
 			{
 				projects.map((project) => (
 					<li class="project">
@@ -222,6 +222,26 @@ const credits = creditLines(cast);
 		margin: 0.1rem 0 0.35rem;
 		font-size: 0.95rem;
 		color: var(--color-glass-muted);
+	}
+
+	/* Work and Projects as a bento on desktop: the first entry spans the top, the rest pair up below. */
+	.tiles > li {
+		max-width: none;
+		padding: 1rem 1.15rem;
+		border: 1.5px solid var(--color-glass-border);
+		border-radius: calc(var(--radius) * 0.75);
+	}
+
+	@media (min-width: 48rem) {
+		.tiles {
+			grid-template-columns: 1fr 1fr;
+		}
+
+		/* An even count leaves the last entry alone on its row, so it spans too. */
+		.tiles > li:first-child,
+		.tiles > li:last-child:nth-child(even) {
+			grid-column: 1 / -1;
+		}
 	}
 
 	.project {
