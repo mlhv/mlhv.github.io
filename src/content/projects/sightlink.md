@@ -2,6 +2,7 @@
 title: "SightLink - CodeFest 2026"
 description: "Developed a real-time ASL fingerspelling translator using a confidence hybrid classifier, routing 30fps webcam frames through a fast landmark MLP (97.5% accuracy) with CNN fallback, achieving ~99.9% accuracy."
 techStack: ["Python","MediaPipe","MobileNetV2","TensorFlow","OpenCV"]
+repoUrl: "https://github.com/mlhv/SightLink"
 featured: false
 order: 4
 ---

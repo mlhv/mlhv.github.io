@@ -2,6 +2,7 @@
 import { getCollection } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
 import Window from "../../components/Window.astro";
+import ProjectLinks from "../../components/ProjectLinks.astro";
 import ProjectLogo from "../../components/ProjectLogo.astro";
 import { sortProjects } from "../../lib/projects";
 
@@ -27,6 +28,7 @@ const projects = sortProjects(await getCollection("projects"));
 							))}
 						</ul>
 					</Window>
+					<ProjectLinks title={project.data.title} repoUrl={project.data.repoUrl} liveUrl={project.data.liveUrl} />
 				</li>
 			))
 		}
@@ -44,7 +46,19 @@ const projects = sortProjects(await getCollection("projects"));
 	}
 
 	.grid > li {
+		display: flex;
+		flex-direction: column;
 		max-width: none;
+	}
+
+	/* The card stretches so a row lines up; the links sit under it, outside the whole-card link. */
+	.grid > li > :global(.window) {
+		flex: 1;
+		height: auto;
+	}
+
+	.grid > li > :global(.project-links) {
+		padding-left: 0.25rem;
 	}
 
 	.screen {

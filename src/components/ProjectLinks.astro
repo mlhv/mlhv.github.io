@@ -1,0 +1,39 @@
+---
+// A project's outbound links ("Code ↗ · Live ↗") for project cards; renders nothing when the project has neither.
+interface Props {
+	title: string;
+	repoUrl?: string;
+	liveUrl?: string;
+}
+
+const { title, repoUrl, liveUrl } = Astro.props;
+// Many cards share these labels, so each link is named after its project for screen readers.
+const name = title.split(" - ")[0];
+---
+
+{
+	(repoUrl || liveUrl) && (
+		<p class="project-links">
+			{repoUrl && (
+				<a href={repoUrl} aria-label={`${name} source code`}>
+					Code ↗
+				</a>
+			)}
+			{repoUrl && liveUrl && <span aria-hidden="true"> · </span>}
+			{liveUrl && (
+				<a href={liveUrl} aria-label={`${name} live`}>
+					Live ↗
+				</a>
+			)}
+		</p>
+	)
+}
+
+<style>
+	.project-links {
+		margin: 0.5rem 0 0;
+		font-family: var(--font-heading);
+		font-size: 0.9rem;
+		font-weight: 600;
+	}
+</style>

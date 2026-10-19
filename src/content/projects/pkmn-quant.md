@@ -2,6 +2,7 @@
 title: "Pkmn-Quant - Algorithmic Trading Backtester"
 description: "Built an event-driven backtester over a 3M-row Parquet price warehouse with T+1 fills, 12.75% fees, and tiered liquidity caps, enabling all 5 strategies to generate live daily trade signals with zero code changes."
 techStack: ["Python","Polars","C++","scikit-learn","DuckDB"]
+repoUrl: "https://github.com/mlhv/pkmn-stock"
 featured: false
 order: 1
 ---

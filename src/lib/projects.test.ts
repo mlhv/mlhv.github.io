@@ -1,3 +1,5 @@
+import { readdirSync, readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { monogram, sortProjects } from './projects';
 
@@ -34,5 +36,24 @@ describe('monogram', () => {
 
 	it('ignores a subtitle after an em dash', () => {
 		expect(monogram('Stylify — Virtual Wardrobe App')).toBe('ST');
+	});
+});
+
+describe('project links', () => {
+	const dir = fileURLToPath(new URL('../content/projects/', import.meta.url));
+	const field = (source: string, name: string) => source.match(new RegExp(`^${name}: "(.*)"$`, 'm'))?.[1];
+	const entries = readdirSync(dir)
+		.filter((file) => file.endsWith('.md'))
+		.map((file) => [file, readFileSync(`${dir}${file}`, 'utf8')] as const);
+
+	it.each(entries)('%s links only to its own repo and an https demo', (_, source) => {
+		const repoUrl = field(source, 'repoUrl');
+		const liveUrl = field(source, 'liveUrl');
+		if (repoUrl) expect(repoUrl).toMatch(/^https:\/\/github\.com\/mlhv\/[A-Za-z0-9._-]+$/);
+		if (liveUrl) expect(liveUrl).toMatch(/^https:\/\//);
+	});
+
+	it('gives recruiters code to click on most projects', () => {
+		expect(entries.filter(([, source]) => field(source, 'repoUrl')).length).toBeGreaterThanOrEqual(5);
 	});
 });

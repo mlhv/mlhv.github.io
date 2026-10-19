@@ -2,6 +2,7 @@
 title: "SocialGym - ML Chat Platform"
 description: "Implemented an event-driven ML pipeline via Kafka, allowing a Python microservice to perform asynchronous Hugging Face sentiment analysis, maintaining 100% main-thread availability during heavy NLP workloads."
 techStack: ["React","Spring Boot","Python","Kafka","PostgreSQL"]
+repoUrl: "https://github.com/mlhv/SocialGym"
 featured: false
 order: 6
 ---

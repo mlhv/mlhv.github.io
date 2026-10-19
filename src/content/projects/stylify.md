@@ -2,6 +2,7 @@
 title: "Stylify - Virtual Wardrobe App"
 description: "Built a responsive virtual wardrobe system using React+Vite and PostgreSQL, featuring complete CRUD functionality to manage 500+ garment entries and generate recommendations using multi-param filtering."
 techStack: ["React+Vite","Hono","PostgreSQL","AWS Lambda","S3","CloudFront"]
+repoUrl: "https://github.com/mlhv/Stylify"
 featured: false
 order: 7
 ---

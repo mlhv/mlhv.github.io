@@ -2,6 +2,7 @@
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import headshot from "../assets/headshot.jpeg";
+import ProjectLinks from "../components/ProjectLinks.astro";
 import ProjectLogo from "../components/ProjectLogo.astro";
 import Stage from "../components/Stage.astro";
 import StepCard from "../components/StepCard.astro";
@@ -32,7 +33,7 @@ const credits = creditLines(cast);
 		<p class="tagline">
 			Software engineering student at Drexel University building backend, infrastructure, and applied-AI systems.
 		</p>
-		<p class="seeking">Looking for Summer 2027 internships.</p>
+		<p class="seeking">Looking for Spring/Summer 2027 software engineering co-ops and internships.</p>
 		<div class="chips">
 			<a href="#work">Work ↓</a>
 			<a href="#projects">Projects ↓</a>
@@ -77,6 +78,7 @@ const credits = creditLines(cast);
 									<li>{tech}</li>
 								))}
 							</ul>
+							<ProjectLinks title={project.data.title} repoUrl={project.data.repoUrl} liveUrl={project.data.liveUrl} />
 						</div>
 					</li>
 				))
