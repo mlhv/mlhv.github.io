@@ -1,7 +1,7 @@
 /**
  * Optimise a downloaded, rigged character model into public/models/<id>.glb.
  *
- *   npm run add-model -- ~/models/joker.glb joker --idle idle [--talk talk]
+ *   npm run add-model -- ~/models/joker.glb joker --idle idle [--talk talk] [--unlit]
  *
  * Keeps only the named clips, prunes and deduplicates, resizes textures to at most 1024 px as WebP, and
  * meshopt-compresses the geometry. Refuses a model with no rig, a missing clip, or a result over the budget.
@@ -11,7 +11,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { NodeIO } from '@gltf-transform/core';
-import { ALL_EXTENSIONS } from '@gltf-transform/extensions';
+import { ALL_EXTENSIONS, KHRMaterialsUnlit } from '@gltf-transform/extensions';
 import { dedup, meshopt, prune, textureCompress } from '@gltf-transform/functions';
 import { MeshoptDecoder, MeshoptEncoder } from 'meshoptimizer';
 import sharp from 'sharp';
@@ -45,6 +45,11 @@ if (problem) fail(problem);
 
 const keep = new Set([args.idle, args.talk]);
 for (const animation of root.listAnimations()) if (!keep.has(animation.getName())) animation.dispose();
+
+if (args.unlit) {
+	const unlit = doc.createExtension(KHRMaterialsUnlit);
+	for (const material of root.listMaterials()) material.setExtension('KHR_materials_unlit', unlit.createUnlit());
+}
 
 await doc.transform(
 	prune(),

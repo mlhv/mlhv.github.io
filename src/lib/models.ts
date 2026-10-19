@@ -8,18 +8,25 @@ export interface AddModelArgs {
 	id: string;
 	idle: string;
 	talk: string | null;
+	/** Mark every material KHR_materials_unlit, so flat-shaded game art shows its textures as painted. */
+	unlit: boolean;
 }
 
-const USAGE = 'usage: npm run add-model -- <original.glb> <id> --idle <clip> [--talk <clip>]';
+const USAGE = 'usage: npm run add-model -- <original.glb> <id> --idle <clip> [--talk <clip>] [--unlit]';
 
-/** Parses `<original.glb> <id> --idle <clip> [--talk <clip>]`, flags in any position. Throws with a usage message. */
+/** Parses `<original.glb> <id> --idle <clip> [--talk <clip>] [--unlit]`, flags in any position. Throws with a usage message. */
 export const parseAddModelArgs = (argv: readonly string[]): AddModelArgs => {
 	const positional: string[] = [];
 	const flags: Record<string, string> = {};
+	let unlit = false;
 	for (let i = 0; i < argv.length; i++) {
 		const arg = argv[i];
 		if (!arg.startsWith('--')) {
 			positional.push(arg);
+			continue;
+		}
+		if (arg === '--unlit') {
+			unlit = true;
 			continue;
 		}
 		const name = arg.slice(2);
@@ -34,7 +41,7 @@ export const parseAddModelArgs = (argv: readonly string[]): AddModelArgs => {
 	if (!/^[a-z][a-z0-9-]*$/.test(id)) throw new Error(`id "${id}" must be lowercase letters, digits and dashes (the Cast Member's id)`);
 	if (!flags.idle) throw new Error(`--idle <clip> is required\n${USAGE}`);
 	if (flags.talk === flags.idle) throw new Error(`--talk must name a different clip from --idle\n${USAGE}`);
-	return { input, id, idle: flags.idle, talk: flags.talk ?? null };
+	return { input, id, idle: flags.idle, talk: flags.talk ?? null, unlit };
 };
 
 /** Why a model can't be used, or null if it can: it must be rigged and contain the named clips. */

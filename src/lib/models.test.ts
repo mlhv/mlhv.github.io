@@ -15,11 +15,16 @@ describe('parseAddModelArgs', () => {
 			id: 'joker',
 			idle: 'idle',
 			talk: 'talk',
+			unlit: false,
 		});
 	});
 
 	it('makes --talk optional and accepts flags in any order', () => {
-		expect(parseAddModelArgs(['--idle', 'Breathing Idle', 'a.glb', 'minh'])).toEqual({ input: 'a.glb', id: 'minh', idle: 'Breathing Idle', talk: null });
+		expect(parseAddModelArgs(['--idle', 'Breathing Idle', 'a.glb', 'minh'])).toEqual({ input: 'a.glb', id: 'minh', idle: 'Breathing Idle', talk: null, unlit: false });
+	});
+
+	it('reads --unlit as a switch that takes no value', () => {
+		expect(parseAddModelArgs(['a.glb', 'phoenix', '--unlit', '--idle', 'idle'])).toMatchObject({ id: 'phoenix', idle: 'idle', unlit: true });
 	});
 
 	it.each([
