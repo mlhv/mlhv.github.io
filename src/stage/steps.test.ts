@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { STEPS, isStepId, kicker, stepFromHash } from './steps';
+import { STEPS, isStepId, kicker, stageSteps, stepFromHash } from './steps';
 
 describe('STEPS', () => {
 	it('is the spec order', () => {
@@ -30,10 +30,24 @@ describe('stepFromHash', () => {
 	});
 });
 
+describe('stageSteps', () => {
+	it('drops the Blog Step while there are no posts', () => {
+		expect(stageSteps(0).map((s) => s.id)).toEqual(['hello', 'work', 'projects', 'contact']);
+	});
+
+	it('keeps every Step once there is a post', () => {
+		expect(stageSteps(1)).toEqual(STEPS);
+	});
+});
+
 describe('kicker', () => {
 	it('numbers from 01 with the label', () => {
-		expect(kicker(0)).toBe('01 · Hello');
-		expect(kicker(1)).toBe('02 · Work Experience');
-		expect(kicker(4)).toBe('05 · Contact');
+		expect(kicker(STEPS, 'hello')).toBe('01 · Hello');
+		expect(kicker(STEPS, 'work')).toBe('02 · Work Experience');
+		expect(kicker(STEPS, 'contact')).toBe('05 · Contact');
+	});
+
+	it('numbers by position in the Steps shown, leaving no gap for a hidden Step', () => {
+		expect(kicker(stageSteps(0), 'contact')).toBe('04 · Contact');
 	});
 });

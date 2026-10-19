@@ -1,21 +1,22 @@
 ---
 // One Step of the homepage Stage: a full-height section holding one glass card.
 // The card fades in only once the Stage script has started (:root[data-stage]); without JS every card is simply visible.
-import { STEPS, kicker } from "../stage/steps";
+import { kicker, type Step, type StepId } from "../stage/steps";
 
 interface Props {
-	index: number;
+	id: StepId;
+	/** The Steps the page shows, for numbering the kicker. */
+	steps: readonly Step[];
 	/** Centre the card's text (the Hello card). */
 	center?: boolean;
 }
 
-const { index, center = false } = Astro.props;
-const { id } = STEPS[index];
+const { id, steps, center = false } = Astro.props;
 ---
 
 <section class="step" id={id} data-step>
 	<div class:list={["card", { center }]} data-world-solid>
-		<p class="kicker">{kicker(index)}</p>
+		<p class="kicker">{kicker(steps, id)}</p>
 		<slot />
 	</div>
 	<slot name="after" />

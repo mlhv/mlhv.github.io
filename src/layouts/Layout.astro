@@ -7,11 +7,14 @@ import Nav from "../components/Nav.astro";
 interface Props {
 	title: string;
 	description?: string;
+	/** Keep the page out of search results (e.g. the Blog while it has no posts). */
+	noindex?: boolean;
 }
 
 const {
 	title,
 	description = "Minh Le: software engineering projects, experience, and writing.",
+	noindex = false,
 } = Astro.props;
 const pageTitle = title === "Home" ? "Minh Le" : `${title} · Minh Le`;
 ---
@@ -22,6 +25,7 @@ const pageTitle = title === "Home" ? "Minh Le" : `${title} · Minh Le`;
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="description" content={description} />
+		{noindex && <meta name="robots" content="noindex" />}
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />

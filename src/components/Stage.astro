@@ -2,14 +2,20 @@
 // The homepage Stage controller and its progress rail.
 // Marks the Step at the middle of the screen active, mirrors it in the rail and the URL hash,
 // and announces it with a `stage:step` event (World.astro moves the camera on it).
-import { STEPS } from "../stage/steps";
+import type { Step } from "../stage/steps";
+
+interface Props {
+	steps: readonly Step[];
+}
+
+const { steps } = Astro.props;
 ---
 
 <nav class="rail" aria-label="Sections" data-rail>
 	<span class="bar" aria-hidden="true"></span>
 	<ol>
 		{
-			STEPS.map(({ id, label }) => (
+			steps.map(({ id, label }) => (
 				<li>
 					<a href={`#${id}`}>
 						<span class="label">{label}</span>

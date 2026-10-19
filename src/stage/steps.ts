@@ -17,5 +17,14 @@ export const stepFromHash = (hash: string): StepId => {
 	return isStepId(id) ? id : 'hello';
 };
 
-/** Small label at the top of each card: "02 · Work Experience". */
-export const kicker = (index: number): string => `${String(index + 1).padStart(2, '0')} · ${STEPS[index].label}`;
+export type Step = (typeof STEPS)[number];
+
+/** The Steps the homepage shows: the Blog Step waits for its first post. */
+export const stageSteps = (postCount: number): readonly Step[] =>
+	postCount > 0 ? STEPS : STEPS.filter((step) => step.id !== 'blog');
+
+/** Small label at the top of each card, numbered by its place among the Steps shown: "02 · Work Experience". */
+export const kicker = (steps: readonly Step[], id: StepId): string => {
+	const index = steps.findIndex((step) => step.id === id);
+	return `${String(index + 1).padStart(2, '0')} · ${steps[index].label}`;
+};

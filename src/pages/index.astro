@@ -10,20 +10,23 @@ import Layout from "../layouts/Layout.astro";
 import { getVisiblePosts } from "../lib/content";
 import { sortProjects } from "../lib/projects";
 import { resume } from "../lib/resume-data";
+import { stageSteps } from "../stage/steps";
 import { cast, showHosts } from "../world/characters";
 import { creditLines } from "../world/credits";
 
 const projects = sortProjects(await getCollection("projects")).slice(0, 3);
-const posts = (await getVisiblePosts()).slice(0, 2);
+const allPosts = await getVisiblePosts();
+const posts = allPosts.slice(0, 2);
+const steps = stageSteps(allPosts.length);
 const formatDate = new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeZone: "UTC" });
 const credits = creditLines(cast);
 ---
 
 <Layout title="Home">
 	<World />
-	<Stage />
+	<Stage steps={steps} />
 
-	<StepCard index={0} center>
+	<StepCard id="hello" steps={steps} center>
 		<Image src={headshot} alt={resume.name} width={200} height={200} loading="eager" class="photo" />
 		<h1 class="name">{resume.name}</h1>
 		<p class="tagline">
@@ -37,7 +40,7 @@ const credits = creditLines(cast);
 		</div>
 	</StepCard>
 
-	<StepCard index={1}>
+	<StepCard id="work" steps={steps}>
 		<h2>Where I've worked</h2>
 		<ol class="entries">
 			{
@@ -57,7 +60,7 @@ const credits = creditLines(cast);
 		<a class="more" href="/work/">See all experience →</a>
 	</StepCard>
 
-	<StepCard index={2}>
+	<StepCard id="projects" steps={steps}>
 		<h2>Things I've built</h2>
 		<ul class="entries">
 			{
@@ -82,12 +85,10 @@ const credits = creditLines(cast);
 		<a class="more" href="/projects/">All projects →</a>
 	</StepCard>
 
-	<StepCard index={3}>
-		<h2>Writing</h2>
-		{
-			posts.length === 0 ? (
-				<p class="entries">Posts coming soon.</p>
-			) : (
+	{
+		posts.length > 0 && (
+			<StepCard id="blog" steps={steps}>
+				<h2>Writing</h2>
 				<ul class="entries">
 					{posts.map((post) => (
 						<li>
@@ -101,12 +102,12 @@ const credits = creditLines(cast);
 						</li>
 					))}
 				</ul>
-			)
-		}
-		<a class="more" href="/blog/">All posts →</a>
-	</StepCard>
+				<a class="more" href="/blog/">All posts →</a>
+			</StepCard>
+		)
+	}
 
-	<StepCard index={4}>
+	<StepCard id="contact" steps={steps}>
 		<h2>Say hello</h2>
 		<p>The fastest way to reach me is email.</p>
 		<div class="buttons">

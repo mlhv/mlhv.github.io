@@ -8,7 +8,7 @@ const tags = collectTags(posts.map((post) => post.data));
 const formatDate = new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeZone: "UTC" });
 ---
 
-<Layout title="Blog" description="Engineering writing by Minh Le.">
+<Layout title="Blog" description="Engineering writing by Minh Le." noindex={posts.length === 0}>
 	<h1 class="page-title">Blog</h1>
 
 	{

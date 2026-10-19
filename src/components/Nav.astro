@@ -1,11 +1,15 @@
 ---
+import { getVisiblePosts } from "../lib/content";
 import ThemeToggle from "./ThemeToggle.astro";
+
+// The Blog link waits for the first post, like the homepage's Blog Step.
+const hasPosts = (await getVisiblePosts()).length > 0;
 
 const links = [
 	{ href: "/", label: "Home" },
 	{ href: "/projects/", label: "Projects" },
 	{ href: "/work/", label: "Work Experience" },
-	{ href: "/blog/", label: "Blog" },
+	...(hasPosts ? [{ href: "/blog/", label: "Blog" }] : []),
 	{ href: "/contact/", label: "Contact" },
 ];
 
