@@ -1,10 +1,13 @@
-import { Color, InstancedMesh, Matrix4, Mesh, Vector3, type Points } from 'three';
+import { Box3, Color, InstancedMesh, Matrix4, Mesh, MeshLambertMaterial, Vector3, type Points } from 'three';
 import { describe, expect, it } from 'vitest';
-import { MOUNTAINS, heightAt } from './layout';
+import { CLOUDS, FIREFLIES, MOUNTAINS, TREES, cloudX, heightAt } from './layout';
 import type { MeadowPalette } from './palette';
 import { buildGround } from './ground';
 import { buildGrass } from './grass';
 import { buildSky } from './sky';
+import { buildClouds } from './clouds';
+import { buildFireflies } from './fireflies';
+import { createTree } from './trees';
 
 const day: MeadowPalette = {
 	skyTop: '#6fb8ec',
@@ -91,5 +94,37 @@ describe('buildGrass', () => {
 		expect(grass.mesh.count).toBe(100);
 		grass.setCount(60000);
 		expect(grass.mesh.count).toBe(8000);
+	});
+});
+
+describe('createTree', () => {
+	it.each(TREES.map((spec) => [spec.seed, spec] as const))('tree %s stands on y = 0 and is about its spec height', (_, spec) => {
+		const materials = { trunk: new MeshLambertMaterial(), canopy: new MeshLambertMaterial() };
+		const box = new Box3().setFromObject(createTree(spec, materials));
+		expect(box.min.y).toBeGreaterThan(-0.01);
+		expect(box.max.y).toBeGreaterThan(spec.height * 0.8);
+		expect(box.max.y).toBeLessThan(spec.height * 1.15);
+	});
+});
+
+describe('buildClouds', () => {
+	it('drifts each cloud along cloudX', () => {
+		const clouds = buildClouds();
+		clouds.update(42);
+		clouds.group.children.forEach((cloud, i) => expect(cloud.position.x).toBeCloseTo(cloudX(CLOUDS[i].x, 42), 9));
+	});
+});
+
+describe('buildFireflies', () => {
+	it('makes FIREFLIES.count specks inside the firefly box', () => {
+		const fireflies = buildFireflies({ value: 0 });
+		const position = fireflies.geometry.getAttribute('position');
+		expect(position.count).toBe(FIREFLIES.count);
+		for (let i = 0; i < position.count; i++) {
+			expect(position.getX(i)).toBeGreaterThanOrEqual(FIREFLIES.x[0]);
+			expect(position.getX(i)).toBeLessThanOrEqual(FIREFLIES.x[1]);
+			expect(position.getY(i)).toBeGreaterThanOrEqual(FIREFLIES.y[0]);
+			expect(position.getY(i)).toBeLessThanOrEqual(FIREFLIES.y[1]);
+		}
 	});
 });
