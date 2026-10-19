@@ -1,4 +1,4 @@
-import type { Vec3 } from './camera-path';
+import type { Vec3 } from './meadow/layout';
 
 export interface Fit {
 	scale: number;

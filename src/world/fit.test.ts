@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Vec3 } from './camera-path';
+import type { Vec3 } from './meadow/layout';
 import { fitToHeight } from './fit';
 
 /** Where a box's corners end up after applying the fit: scale first, then offset. */

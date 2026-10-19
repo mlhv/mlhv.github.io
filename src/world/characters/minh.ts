@@ -3,7 +3,7 @@ import type { CastMember } from '../cast';
 export const minh: CastMember = {
 	id: 'minh',
 	name: 'Minh',
-	position: [-60, 12],
+	position: [-11, -27],
 	facing: 0.2,
 	height: 17,
 	motion: { kind: 'still' },

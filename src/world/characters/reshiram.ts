@@ -3,7 +3,7 @@ import type { CastMember } from '../cast';
 export const reshiram: CastMember = {
 	id: 'reshiram',
 	name: 'Reshiram',
-	position: [74, -4],
+	position: [-12, -30],
 	facing: -0.4,
 	height: 50,
 	motion: { kind: 'soar' },
