@@ -10,7 +10,7 @@ import Layout from "../layouts/Layout.astro";
 import { getVisiblePosts } from "../lib/content";
 import { sortProjects } from "../lib/projects";
 import { resume } from "../lib/resume-data";
-import { cast } from "../world/characters";
+import { cast, showHosts } from "../world/characters";
 import { creditLines } from "../world/credits";
 
 const projects = sortProjects(await getCollection("projects")).slice(0, 3);
@@ -115,22 +115,26 @@ const credits = creditLines(cast);
 			<a class="button" href={resume.contact.github}>GitHub</a>
 			<a class="button" href="/resume/">Résumé</a>
 		</div>
-		<p slot="after" class="credit" data-world-solid>
-			Characters © Nintendo / Game Freak / The Pokémon Company / Atlus / Capcom. Fan art.
-			{
-				credits.length > 0 && (
-					<>
-						{" "}Models:{" "}
-						{credits.map((credit, index) => (
+		{
+			showHosts && (
+				<p slot="after" class="credit" data-world-solid>
+					Characters © Nintendo / Game Freak / The Pokémon Company / Atlus / Capcom. Fan art.
+					{
+						credits.length > 0 && (
 							<>
-								{index > 0 && " · "}
-								<a href={credit.url}>{credit.title}</a> by {credit.author} ({credit.licence})
+								{" "}Models:{" "}
+								{credits.map((credit, index) => (
+									<>
+										{index > 0 && " · "}
+										<a href={credit.url}>{credit.title}</a> by {credit.author} ({credit.licence})
+									</>
+								))}
 							</>
-						))}
-					</>
-				)
-			}
-		</p>
+						)
+					}
+				</p>
+			)
+		}
 	</StepCard>
 </Layout>
 

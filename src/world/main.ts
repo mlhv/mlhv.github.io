@@ -22,7 +22,7 @@ import {
 import type { StepId } from '../stage/steps';
 import { glideAt, retarget, shotFor, still, type CameraKey, type Glide } from './camera-path';
 import type { CastMember } from './cast';
-import { cast } from './characters';
+import { hosts } from './characters';
 import { loadCharacter, type LoadedCharacter } from './load-character';
 import { loadOrder } from './load-order';
 import { motionPose } from './motion';
@@ -118,7 +118,7 @@ export const startWorld = async (
 	const shadowGeometry = new CircleGeometry(1, 20);
 	const shadowMaterial = new MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.18, depthWrite: false });
 	const standInMaterial = createStandInMaterial();
-	const actors: Actor[] = cast.map((member, index) => {
+	const actors: Actor[] = hosts.map((member, index) => {
 		const slot = new Group();
 		const standIn = createStandIn(member.height, standInMaterial);
 		slot.add(standIn);
@@ -226,7 +226,7 @@ export const startWorld = async (
 	let stopped = false;
 	/** Loads models one at a time; a failure keeps that Stand-in and moves on. */
 	const loadModels = async () => {
-		for (const member of loadOrder(cast, options.initialStep)) {
+		for (const member of loadOrder(hosts, options.initialStep)) {
 			const actor = actors.find((a) => a.member === member);
 			if (!actor) continue;
 			try {

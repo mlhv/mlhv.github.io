@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { STEPS } from '../../stage/steps';
 import { FRAMINGS } from '../camera-path';
 import { isLand } from '../terrain';
-import { cast } from './index';
+import { cast, hosts, showHosts } from './index';
 
 const publicFile = (url: string) => fileURLToPath(new URL(`../../../public${url}`, import.meta.url));
 
@@ -35,5 +35,11 @@ describe('cast', () => {
 		expect(member.source.clips.talk).not.toBe(member.source.clips.idle);
 		for (const field of ['title', 'author', 'licence'] as const) expect(member.credit[field].trim()).not.toBe('');
 		expect(member.credit.url).toMatch(/^https:\/\//);
+	});
+});
+
+describe('hosts', () => {
+	it('is the whole cast when showHosts is on, and empty when it is off', () => {
+		expect(hosts).toEqual(showHosts ? cast : []);
 	});
 });
