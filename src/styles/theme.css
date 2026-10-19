@@ -45,7 +45,7 @@
         --color-secondary: #7fb2ea;
         --color-on-secondary: #0f1a14;
         --color-world-sky: #e09a7e;    /* dusk: skyHorizon and grassNear */
-        --color-world-ground: #2e5a4a;
+        --color-world-ground: #467e6a;
     }
 }
 
@@ -63,7 +63,7 @@
     --color-secondary: #7fb2ea;
     --color-on-secondary: #0f1a14;
     --color-world-sky: #e09a7e;    /* dusk: skyHorizon and grassNear */
-    --color-world-ground: #2e5a4a;
+    --color-world-ground: #467e6a;
 }
 
 *, *::before, *::after {

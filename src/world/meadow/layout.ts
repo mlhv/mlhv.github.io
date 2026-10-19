@@ -98,7 +98,7 @@ const ring = (count: number, distance: number, heights: [number, number], radii:
 /** Two rows of peaks along the horizon; fog dissolves them. */
 export const MOUNTAINS: Peak[] = (() => {
 	const rand = seeded(3);
-	return [...ring(12, 430, [80, 150], [60, 90], rand), ...ring(14, 360, [50, 110], [45, 75], rand)];
+	return [...ring(12, 430, [65, 120], [60, 90], rand), ...ring(14, 360, [40, 85], [45, 75], rand)];
 })();
 
 export interface TreeSpec {
@@ -111,14 +111,14 @@ export interface TreeSpec {
 
 /** Clumps in the left and right thirds (they frame the card), plus two far trees for depth. */
 export const TREES: TreeSpec[] = [
-	{ x: -35, z: -80, height: 38, seed: 1 },
-	{ x: -48, z: -95, height: 44, seed: 2 },
-	{ x: -28, z: -100, height: 34, seed: 3 },
-	{ x: 32, z: -65, height: 36, seed: 4 },
-	{ x: 44, z: -78, height: 42, seed: 5 },
-	{ x: 38, z: -92, height: 32, seed: 6 },
-	{ x: -70, z: -240, height: 48, seed: 7 },
-	{ x: 95, z: -280, height: 52, seed: 8 },
+	{ x: -62, z: -105, height: 24, seed: 1 },
+	{ x: -80, z: -130, height: 30, seed: 2 },
+	{ x: -52, z: -135, height: 20, seed: 3 },
+	{ x: 56, z: -90, height: 30, seed: 4 },
+	{ x: 70, z: -118, height: 34, seed: 5 },
+	{ x: 50, z: -128, height: 24, seed: 6 },
+	{ x: -70, z: -240, height: 40, seed: 7 },
+	{ x: 95, z: -280, height: 44, seed: 8 },
 ];
 
 /** Canopy rock, radians either way. */
@@ -135,7 +135,7 @@ export const inClearing = (x: number, z: number): boolean =>
  * Blades grow from `near` to `far` in front of the camera, within |x| ≤ spread·distance + margin (a little wider
  * than a 16:9 view). Beyond `far` the ground is plain green.
  */
-export const GRASS_AREA = { near: 14, far: 170, spread: 0.75, margin: 4 };
+export const GRASS_AREA = { near: 8, far: 170, spread: 0.75, margin: 4 };
 
 export interface Blade {
 	x: number;
@@ -157,7 +157,7 @@ export const grassBlades = (count: number, seed = 11): Blade[] => {
 	return Array.from({ length: count }, () => {
 		const distance = GRASS_AREA.near * ratio ** rand();
 		const halfWidth = GRASS_AREA.spread * distance + GRASS_AREA.margin;
-		return { x: (rand() * 2 - 1) * halfWidth, z: -distance, height: 2.5 + 2.5 * rand(), turn: (rand() - 0.5) * 1.2 };
+		return { x: (rand() * 2 - 1) * halfWidth, z: -distance, height: 1.2 + 1.6 * rand(), turn: (rand() - 0.5) * 1.2 };
 	});
 };
 
@@ -193,10 +193,10 @@ export const cloudX = (x0: number, seconds: number): number => {
 };
 
 /** Dusk fireflies drift inside this box over the near grass. */
-export const FIREFLIES = { count: 40, x: [-40, 40] as [number, number], y: [2, 9] as [number, number], z: [-70, -18] as [number, number] };
+export const FIREFLIES = { count: 40, x: [-40, 40] as [number, number], y: [3, 9] as [number, number], z: [-70, -18] as [number, number] };
 
 export const SKY_RADIUS = 900;
 export const STARS = { count: 300, radius: 850 };
 
-/** Low on the left, just above the hills. */
-export const SUN_DIRECTION: Vec3 = normalize([-0.62, 0.1, -1]);
+/** High on the left, above the left trees and clear of the card. */
+export const SUN_DIRECTION: Vec3 = normalize([-0.62, 0.3, -1]);
