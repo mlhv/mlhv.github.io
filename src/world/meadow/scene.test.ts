@@ -8,6 +8,7 @@ import { buildSky } from './sky';
 import { buildClouds } from './clouds';
 import { buildFireflies } from './fireflies';
 import { createTree } from './trees';
+import { buildMeadow } from './meadow';
 
 const day: MeadowPalette = {
 	skyTop: '#6fb8ec',
@@ -126,5 +127,45 @@ describe('buildFireflies', () => {
 			expect(position.getY(i)).toBeGreaterThanOrEqual(FIREFLIES.y[0]);
 			expect(position.getY(i)).toBeLessThanOrEqual(FIREFLIES.y[1]);
 		}
+	});
+});
+
+describe('buildMeadow', () => {
+	it('builds its grass for the tier, and only ever thins it', () => {
+		const low = buildMeadow('low');
+		const grass = low.group.getObjectByName('grass') as InstancedMesh;
+		expect(grass.count).toBe(8000);
+		low.setTier('high');
+		expect(grass.count).toBe(8000);
+
+		const high = buildMeadow('high');
+		const thick = high.group.getObjectByName('grass') as InstancedMesh;
+		expect(thick.count).toBe(60000);
+		high.setTier('medium');
+		expect(thick.count).toBe(25000);
+	});
+
+	it('switches the dusk extras and the fog synchronously on applyTheme', () => {
+		const meadow = buildMeadow('low');
+		const fireflies = meadow.group.getObjectByName('fireflies') as Points;
+		const stars = meadow.group.getObjectByName('stars') as Points;
+		meadow.applyTheme(dusk);
+		expect(fireflies.visible).toBe(true);
+		expect(stars.visible).toBe(true);
+		meadow.applyTheme(day);
+		expect(fireflies.visible).toBe(false);
+		expect(stars.visible).toBe(false);
+		expect(meadow.fog.color.getHexString()).toBe(new Color(day.fog).getHexString());
+		expect(meadow.fog.far).toBe(day.fogFar);
+	});
+
+	it('sways the trees as time passes, within ±2°', () => {
+		const meadow = buildMeadow('low');
+		const tree = meadow.group.getObjectByName('tree');
+		meadow.update(0);
+		const atStart = tree?.rotation.z ?? Number.NaN;
+		meadow.update(1.25);
+		expect(tree?.rotation.z).not.toBeCloseTo(atStart, 6);
+		expect(Math.abs(tree?.rotation.z ?? 1)).toBeLessThanOrEqual((2 * Math.PI) / 180 + 1e-9);
 	});
 });
